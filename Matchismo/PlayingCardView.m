@@ -14,7 +14,7 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-        NSLog(@"hi");
+
     }
     return self;
 }
