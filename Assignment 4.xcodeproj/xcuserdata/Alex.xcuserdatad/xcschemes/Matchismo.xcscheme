@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "FAACA9D419B1737900B2C132"
-               BuildableName = "Matchismo.app"
+               BuildableName = "Assignment 4.app"
                BlueprintName = "Assignment 4"
                ReferencedContainer = "container:Assignment 4.xcodeproj">
             </BuildableReference>
@@ -33,7 +33,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "FAACA9F519B1737900B2C132"
-               BuildableName = "MatchismoTests.xctest"
+               BuildableName = "Assignment 4Tests.xctest"
                BlueprintName = "Assignment 4Tests"
                ReferencedContainer = "container:Assignment 4.xcodeproj">
             </BuildableReference>
@@ -43,7 +43,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "FAACA9D419B1737900B2C132"
-            BuildableName = "Matchismo.app"
+            BuildableName = "Assignment 4.app"
             BlueprintName = "Assignment 4"
             ReferencedContainer = "container:Assignment 4.xcodeproj">
          </BuildableReference>
@@ -62,7 +62,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "FAACA9D419B1737900B2C132"
-            BuildableName = "Matchismo.app"
+            BuildableName = "Assignment 4.app"
             BlueprintName = "Assignment 4"
             ReferencedContainer = "container:Assignment 4.xcodeproj">
          </BuildableReference>
@@ -80,7 +80,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "FAACA9D419B1737900B2C132"
-            BuildableName = "Matchismo.app"
+            BuildableName = "Assignment 4.app"
             BlueprintName = "Assignment 4"
             ReferencedContainer = "container:Assignment 4.xcodeproj">
          </BuildableReference>
