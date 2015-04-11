@@ -28,6 +28,7 @@
 		FAACA9FA19B1737900B2C132 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAACA9DC19B1737900B2C132 /* UIKit.framework */; };
 		FAACAA0219B1737900B2C132 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = FAACAA0019B1737900B2C132 /* InfoPlist.strings */; };
 		FAACAA0419B1737900B2C132 /* Assignment4Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = FAACAA0319B1737900B2C132 /* Assignment4Tests.m */; };
+		FAB724E21AD8F33900FC331F /* PlayingCardView.m in Sources */ = {isa = PBXBuildFile; fileRef = FAB724E11AD8F33900FC331F /* PlayingCardView.m */; };
 		FAB7822D19FB15FF001C9BB8 /* PlayingCardDeck.m in Sources */ = {isa = PBXBuildFile; fileRef = FAB7822C19FB15FF001C9BB8 /* PlayingCardDeck.m */; };
 		FAB7823019FE52B2001C9BB8 /* CardMatchingGame.m in Sources */ = {isa = PBXBuildFile; fileRef = FAB7822F19FE52B2001C9BB8 /* CardMatchingGame.m */; };
 		FABCF6941AD69DF00003FCD3 /* HistoryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FABCF6931AD69DF00003FCD3 /* HistoryViewController.m */; };
@@ -77,6 +78,8 @@
 		FAACA9FF19B1737900B2C132 /* Assignment 4Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Assignment 4Tests-Info.plist"; sourceTree = "<group>"; };
 		FAACAA0119B1737900B2C132 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		FAACAA0319B1737900B2C132 /* Assignment4Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Assignment4Tests.m; sourceTree = "<group>"; };
+		FAB724E01AD8F33900FC331F /* PlayingCardView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayingCardView.h; sourceTree = "<group>"; };
+		FAB724E11AD8F33900FC331F /* PlayingCardView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlayingCardView.m; sourceTree = "<group>"; };
 		FAB7822B19FB15FF001C9BB8 /* PlayingCardDeck.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayingCardDeck.h; sourceTree = "<group>"; };
 		FAB7822C19FB15FF001C9BB8 /* PlayingCardDeck.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlayingCardDeck.m; sourceTree = "<group>"; };
 		FAB7822E19FE52B2001C9BB8 /* CardMatchingGame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CardMatchingGame.h; sourceTree = "<group>"; };
@@ -172,6 +175,8 @@
 				FA00BFB71AD283E70051DA66 /* SetGameViewController.m */,
 				FABCF6921AD69DF00003FCD3 /* HistoryViewController.h */,
 				FABCF6931AD69DF00003FCD3 /* HistoryViewController.m */,
+				FAB724E01AD8F33900FC331F /* PlayingCardView.h */,
+				FAB724E11AD8F33900FC331F /* PlayingCardView.m */,
 				FA19658B19B1B63E0028DF62 /* Model */,
 				FAACA9F019B1737900B2C132 /* Images.xcassets */,
 				FAACA9DF19B1737900B2C132 /* Supporting Files */,
@@ -321,6 +326,7 @@
 				FA00BFBE1AD295C90051DA66 /* SetCardDeck.m in Sources */,
 				FAB7822D19FB15FF001C9BB8 /* PlayingCardDeck.m in Sources */,
 				FAACA9E519B1737900B2C132 /* main.m in Sources */,
+				FAB724E21AD8F33900FC331F /* PlayingCardView.m in Sources */,
 				FA19658A19B1B63B0028DF62 /* Card.m in Sources */,
 				FA00BFB21AD27F9F0051DA66 /* PlayingCardGameViewController.m in Sources */,
 			);
