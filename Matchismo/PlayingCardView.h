@@ -1,9 +1,9 @@
 //
 //  PlayingCardView.h
-//  Assignment 4
+//  SuperCard
 //
-//  Created by Alex Smith on 11/04/2015.
-//  Copyright (c) 2015 Game House. All rights reserved.
+//  Created by CS193p Instructor.
+//  Copyright (c) 2013 Stanford University. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -12,7 +12,6 @@
 
 @property (nonatomic) NSUInteger rank;
 @property (strong, nonatomic) NSString *suit;
-
 @property (nonatomic) BOOL faceUp;
 
 - (void)pinch:(UIPinchGestureRecognizer *)gesture;
