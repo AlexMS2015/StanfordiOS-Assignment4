@@ -9,6 +9,8 @@
 #import "PlayingCardGameViewController.h"
 #import "PlayingCardDeck.h"
 #import "PlayingCard.h"
+#import "PlayingCardView.h"
+#import "Grid.h"
 
 @interface PlayingCardGameViewController ()
 
@@ -16,21 +18,34 @@
 
 @implementation PlayingCardGameViewController
 
+-(void)viewDidLoad
+{
+    [super viewDidLoad];
+    
+    self.numberCardMatchingMode = 2;
+    self.numberOfCards = 12;
+}
+
 -(Deck *)createDeck
 {
     return [[PlayingCardDeck alloc] init];
 }
 
--(NSAttributedString *)titleForCard:(Card *)card
+-(UIView *)cardViewForCard:(Card *)card toDisplayInRect:(CGRect)rect
 {
-    //return (card ? [[NSAttributedString alloc] initWithString:card.contents attributes:@{ NSForegroundColorAttributeName : [UIColor blackColor]}] : [[NSMutableAttributedString alloc] init]);
-    
-    return [[NSAttributedString alloc] initWithString:card.contents attributes:@{ NSForegroundColorAttributeName : [UIColor blackColor]}];
-}
+    if ([card isMemberOfClass:[PlayingCard class]]) {
+        PlayingCard *playingCard = (PlayingCard *)card;
+        
+        PlayingCardView *cardToDisplay = [[PlayingCardView alloc] initWithFrame:rect];
+        cardToDisplay.rank = playingCard.rank;
+        cardToDisplay.suit = playingCard.suit;
+        cardToDisplay.faceUp = playingCard.isChosen;
+        
+        return cardToDisplay;
+    } else {
+        return nil;
+    }
 
--(UIImage *)backgroundImageForCard:(Card *)card
-{
-    return [UIImage imageNamed: (card.isChosen ? @"cardfront" : @"cardback")];
 }
 
 @end

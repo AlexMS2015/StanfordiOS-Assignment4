@@ -21,33 +21,12 @@
     [super viewDidLoad];
     
     self.numberCardMatchingMode = 3;
+    self.numberOfCards = 12;
 }
 
 -(Deck *)createDeck
 {
     return [[SetCardDeck alloc] init];
-}
-
--(NSAttributedString *)titleForCard:(Card *)card
-{
-    NSMutableAttributedString *cardTitle = [[NSMutableAttributedString alloc] init];
-    SetCard *setCard = (SetCard *)card;
-
-    for (int i = 0; i < setCard.number; i++) {
-        
-        UIColor *shadedColor = [setCard.colour colorWithAlphaComponent:setCard.shading];
-        
-        NSAttributedString *attributedSymbolString = [[NSAttributedString alloc] initWithString:setCard.symbol attributes:@{ NSForegroundColorAttributeName : shadedColor }];
-        
-        [cardTitle appendAttributedString:attributedSymbolString];
-    }
-
-    return cardTitle;
-}
-
--(UIImage *)backgroundImageForCard:(Card *)card
-{
-    return [UIImage imageNamed:@"setcardback"];
 }
 
 @end

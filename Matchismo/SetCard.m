@@ -11,26 +11,6 @@
 
 @implementation SetCard
 
-+(NSArray *)validColours
-{
-    return @[[UIColor redColor], [UIColor greenColor], [UIColor purpleColor]];
-}
-
-+(NSArray *)validShadings
-{
-    return @[@0.33, @0.66, @1.00];
-}
-
-+(NSArray *)validSymbols
-{
-    return @[@"●", @"▲", @"◼︎"];
-}
-
-+(NSArray *)validNumbers
-{
-    return @[@1, @2, @3];
-}
-
 -(BOOL)doThreeSetCardsMatchWithAttributes:(NSArray *)cardAttributes;
 {
     int attributeAllEqual = 0;
@@ -40,13 +20,12 @@
     
         if ([cardAttribute count] == 3) {
         
-            BOOL oneAndTwo = [cardAttribute[0] isEqualToString:cardAttribute[1]];
-            BOOL oneAndThree = [cardAttribute[0] isEqualToString:cardAttribute[2]];
-            BOOL twoAndThree = [cardAttribute[1] isEqualToString:cardAttribute[2]];
+            BOOL oneAndTwo = [cardAttribute[0] isEqualToNumber: cardAttribute[1]];
+            BOOL oneAndThree = [cardAttribute[0] isEqualToNumber: cardAttribute[2]];
+            BOOL twoAndThree = [cardAttribute[1] isEqualToNumber: cardAttribute[2]];
             
             if (oneAndTwo && oneAndThree && twoAndThree) {
                 attributeAllEqual +=1;
-
             } else if (!oneAndTwo && !oneAndThree && !twoAndThree) {
                 attributeAllUnequal += 1;
             }
@@ -69,10 +48,10 @@
     NSMutableArray *cardColours = [NSMutableArray array];
 
     for (SetCard *card in allCards) {
-        [cardNumbers addObject:[NSString stringWithFormat:@"%d", card.number]];
-        [cardSymbols addObject:card.symbol];
-        [cardShadings addObject:[NSString stringWithFormat:@"%f",card.shading]];
-        [cardColours addObject:[NSString stringWithString:[card.colour description]]];
+        [cardNumbers addObject:card.number];
+        [cardNumbers addObject:card.symbol];
+        [cardNumbers addObject:card.shading];
+        [cardNumbers addObject:card.colour];
     }
     
     NSArray *cardAttributes = @[cardNumbers, cardSymbols, cardShadings, cardColours];

@@ -18,16 +18,16 @@
     
     if (self) {
         
-        for (NSNumber *number in [SetCard validNumbers]) {
-            for (NSString *symbol in [SetCard validSymbols]) {
-                for (NSNumber *shading in [SetCard validShadings]) {
-                    for (UIColor *color in [SetCard validColours]) {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                for (int k = 0; k < 3; k++) {
+                    for (int l = 0; l < 3; l++) {
                         SetCard *setCard = [[SetCard alloc] init];
                         
-                        setCard.number = [number intValue];
-                        setCard.symbol = symbol;
-                        setCard.shading = [shading floatValue];
-                        setCard.colour = color;
+                        setCard.number = [NSNumber numberWithInteger:i];
+                        setCard.symbol = [NSNumber numberWithInteger:j];
+                        setCard.shading = [NSNumber numberWithInteger:k];
+                        setCard.colour = [NSNumber numberWithInteger:l];
                         
                         [self addCard:setCard];
                     }

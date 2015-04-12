@@ -10,13 +10,15 @@
 #import <UIKit/UIKit.h>
 #import "Deck.h"
 #import "CardMatchingGame.h"
+#import "Grid.h"
 
 @interface CardGameViewController : UIViewController
 
-@property NSUInteger numberCardMatchingMode; // 2 is default set by this class.
+// the following 2 properties should be set by concrete subclasses in their viewDidLoad: method
+@property NSUInteger numberCardMatchingMode;
+@property NSUInteger numberOfCards;
 
 -(Deck *)createDeck; // concrete class should implement this method
--(NSAttributedString *)titleForCard:(Card *)card; // how you want the title of your card type shown
--(UIImage *)backgroundImageForCard:(Card *)card; // what background image you want for your card
+-(UIView *)cardViewForCard:(Card *)card toDisplayInRect:(CGRect)rect; // return a card to display.
 
 @end
