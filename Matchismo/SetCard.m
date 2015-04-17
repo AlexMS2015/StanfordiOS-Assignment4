@@ -48,10 +48,10 @@
     NSMutableArray *cardColours = [NSMutableArray array];
 
     for (SetCard *card in allCards) {
-        [cardNumbers addObject:card.number];
-        [cardNumbers addObject:card.symbol];
-        [cardNumbers addObject:card.shading];
-        [cardNumbers addObject:card.colour];
+        [cardNumbers addObject:[NSNumber numberWithInteger:card.number]];
+        [cardNumbers addObject:[NSNumber numberWithInteger:card.symbol]];
+        [cardNumbers addObject:[NSNumber numberWithInteger:card.shading]];
+        [cardNumbers addObject:[NSNumber numberWithInteger:card.colour]];
     }
     
     NSArray *cardAttributes = @[cardNumbers, cardSymbols, cardShadings, cardColours];

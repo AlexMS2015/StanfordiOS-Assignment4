@@ -15,67 +15,88 @@
     return @[[UIColor greenColor], [UIColor redColor], [UIColor purpleColor]][index];
 }
 
-#define HOFFSET1_PERCENTAGE 0.33
-#define HOFFSET2_PERCENTAGE 0.66
+#define HOFFSET1_PERCENTAGE 0.3 // % of view width from horizontal centre
+#define HOFFSET2_PERCENTAGE 0.2
 
 -(void)drawRect:(CGRect)rect
 {
 
-    if ([self.number integerValue] == 1 || [self.number integerValue] == 3) {
+    if (self.number == 1 || self.number == 3) {
         
-        [self drawSymbol:[self.symbol integerValue]
+        [self drawShape:self.shape
     WithHorizontalOffset:0
     mirroredHorizontally:NO];
         
-    } else if ([self.number integerValue] == 2) {
+    }
+    
+    if (self.number == 2) {
         
-        [self drawSymbol:[self.symbol integerValue]
+        [self drawShape:self.shape
     WithHorizontalOffset:HOFFSET1_PERCENTAGE
     mirroredHorizontally:YES];
         
-    } else if ([self.number integerValue] == 2) {
+    }
         
-        [self drawSymbol:[self.symbol integerValue]
+    if (self.number == 3) {
+        
+        [self drawShape:self.shape
     WithHorizontalOffset:HOFFSET2_PERCENTAGE
     mirroredHorizontally:YES];
         
     }
 }
 
--(void)addStripes
-{
-    
-}
-
--(UIBezierPath *)drawSymbol:(NSInteger)symbol
+-(UIBezierPath *)drawShape:(ShapeName)shape
    WithHorizontalOffset:(CGFloat)hoffset
    mirroredHorizontally:(BOOL)mirroredHorizontally
 {
-
-    // call other drawsymbol method
-    // call other drawsymbol method with flipped set to YES if appropriate
+    
+    [self drawShape:shape WithHorizontalOffset:hoffset flipped:NO];
+    
+    if (mirroredHorizontally) {
+        [self drawShape:shape WithHorizontalOffset:(-hoffset) flipped:YES];
+    }
     
     return nil;
 }
 
--(UIBezierPath *)drawSymbol:(NSInteger)symbol
+#define SYMBOLTOVIEWRATIO_WIDTH 0.8
+#define SYMBOLTOVIEWRATIO_HEIGHT 0.8
+
+-(UIBezierPath *)drawShape:(ShapeName)symbol
        WithHorizontalOffset:(CGFloat)hoffset
                     flipped:(BOOL)flipped
 {
-    // create a rectangle based on offset
-    // get a bezier path for the relevant shape in that rectangle
-    // draw that shape with relevant fill and stroke
+
+    CGPoint center = self.center;
+    CGFloat width = self.bounds.size.width;
+    CGFloat height = self.bounds.size.height;
     
-    UIBezierPath *symbolToDraw = [[UIBezierPath alloc] init];
+    CGPoint shapeOrigin =
+        CGPointMake(center.x + hoffset * width , (height - SYMBOLTOVIEWRATIO_HEIGHT) / 2);
+    CGSize shapeSize = CGSizeMake(SYMBOLTOVIEWRATIO_WIDTH * self.bounds.size.width, SYMBOLTOVIEWRATIO_HEIGHT * self.bounds.size.height);
     
-    [[self colourFromIndex:[self.colour integerValue]] setStroke];
+    CGRect rectToDrawShapeIn =
+        CGRectMake(shapeOrigin.x, shapeOrigin.y, shapeSize.width, shapeSize.height);
     
-    [symbolToDraw stroke];
+    UIBezierPath *shapeToDraw = [[UIBezierPath alloc] init];
     
-    if ([self.shading integerValue] == 1) {
-        [[self colourFromIndex:[self.colour integerValue]] setFill];
-        [symbolToDraw fill];
-    } else if ([self.shading integerValue] == 2) {
+    if (self.shape == DIAMONDSHAPE) {
+        shapeToDraw = [self diamondInRect:rectToDrawShapeIn];
+    } else if (self.shape == OVALSHAPE) {
+        shapeToDraw = [self ovalInRect:rectToDrawShapeIn];
+    } else if (self.shape == SQUIGGLESHAPE) {
+        shapeToDraw = [self squiggleInRect:rectToDrawShapeIn];
+    }
+    
+    [[self colourFromIndex:self.colour] setStroke];
+    
+    [shapeToDraw stroke];
+    
+    if (self.shading == FILLED) {
+        [[self colourFromIndex:self.colour] setFill];
+        [shapeToDraw fill];
+    } else if (self.shading == STRIPED) {
         [self addStripes];
     }
     
@@ -89,7 +110,9 @@
 
 -(UIBezierPath *)ovalInRect:(CGRect)rect
 {
-    return nil;
+    UIBezierPath *oval = [UIBezierPath bezierPathWithOvalInRect:rect];
+    
+    return oval;
 }
 
 -(UIBezierPath *)squiggleInRect:(CGRect)rect
@@ -97,28 +120,32 @@
     return nil;
 }
 
+-(void)addStripes
+{
+
+}
 
 #pragma mark - Properties
 
--(void)setNumber:(NSNumber *)number
+-(void)setNumber:(NSUInteger)number
 {
     _number = number;
     [self setNeedsDisplay];
 }
 
--(void)setSymbol:(NSNumber *)symbol
+-(void)setShape:(ShapeName)shape
 {
-    _symbol = symbol;
+    _shape = shape;
     [self setNeedsDisplay];
 }
 
--(void)setShading:(NSNumber *)shading
+-(void)setShading:(ShapeShading)shading
 {
     _shading = shading;
     [self setNeedsDisplay];
 }
 
--(void)setColour:(NSNumber *)colour
+-(void)setColour:(NSUInteger)colour
 {
     _colour = colour;
     [self setNeedsDisplay];

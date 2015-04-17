@@ -9,6 +9,7 @@
 #import "SetGameViewController.h"
 #import "SetCardDeck.h"
 #import "SetCard.h"
+#import "SetCardView.h"
 
 @interface SetGameViewController ()
 
@@ -27,6 +28,39 @@
 -(Deck *)createDeck
 {
     return [[SetCardDeck alloc] init];
+}
+
+-(UIView *)viewForCard:(Card *)card toDisplayInRect:(CGRect)rect
+{
+    if ([card isMemberOfClass:[SetCard class]]) {
+        SetCard *setCard = (SetCard *)card;
+        
+        SetCardView *cardToDisplay = [[SetCardView alloc] initWithFrame:rect];
+        cardToDisplay.number = setCard.number;
+        cardToDisplay.colour = setCard.colour;
+        
+        if (setCard.symbol == 1) {
+            cardToDisplay.shape = DIAMONDSHAPE;
+        } else if (setCard.symbol == 2) {
+            cardToDisplay.shape = OVALSHAPE;
+        } else {
+            cardToDisplay.shape = SQUIGGLESHAPE;
+        }
+        
+        if (setCard.shading == 1) {
+            cardToDisplay.shape = NONE;
+        } else if (setCard.shading == 2) {
+            cardToDisplay.shape = STRIPED;
+        } else {
+            cardToDisplay.shape = FILLED;
+        }
+        
+        cardToDisplay.faceUp = setCard.isChosen;
+        
+        return cardToDisplay;
+    } else {
+        return nil;
+    }
 }
 
 @end

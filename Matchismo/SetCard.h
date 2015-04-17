@@ -10,9 +10,9 @@
 
 @interface SetCard : Card
 
-@property (strong, nonatomic) NSNumber *number;
-@property (strong, nonatomic) NSNumber *symbol;
-@property (strong, nonatomic) NSNumber *shading;
-@property (strong, nonatomic) NSNumber *colour;
+@property (nonatomic) NSUInteger number;
+@property (nonatomic) NSUInteger symbol;
+@property (nonatomic) NSUInteger shading;
+@property (nonatomic) NSUInteger colour;
 
 @end
