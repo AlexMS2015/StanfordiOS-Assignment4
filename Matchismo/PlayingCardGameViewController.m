@@ -31,7 +31,7 @@
     return [[PlayingCardDeck alloc] init];
 }
 
--(UIView *)cardViewForCard:(Card *)card toDisplayInRect:(CGRect)rect
+-(UIView *)viewForCard:(Card *)card toDisplayInRect:(CGRect)rect
 {
     if ([card isMemberOfClass:[PlayingCard class]]) {
         PlayingCard *playingCard = (PlayingCard *)card;

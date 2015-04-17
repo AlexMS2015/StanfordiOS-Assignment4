@@ -19,6 +19,6 @@
 @property NSUInteger numberOfCards;
 
 -(Deck *)createDeck; // concrete class should implement this method
--(UIView *)cardViewForCard:(Card *)card toDisplayInRect:(CGRect)rect; // return a card to display.
+-(UIView *)viewForCard:(Card *)card toDisplayInRect:(CGRect)rect; // return a card to display.
 
 @end

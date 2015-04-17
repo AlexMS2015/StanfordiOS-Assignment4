@@ -16,19 +16,14 @@
 @property (weak, nonatomic) IBOutlet UILabel *scoreLabel;
 @property (weak, nonatomic) IBOutlet UIView *cardDisplayView;
 
-@property (strong, nonatomic) NSMutableArray *cardButtons;
+@property (strong, nonatomic) NSMutableArray *cardButtons; // array to hold the card views
 @property (strong, nonatomic) CardMatchingGame *game; // game model. Subclass should set this.
 @property (strong, nonatomic) Grid *cardDisplayGrid;
 @end
 
 @implementation CardGameViewController
 
--(void)viewDidAppear:(BOOL)animated
-{
-    [super viewDidAppear:animated];
-    
-    [self setupNewGame];
-}
+#pragma mark - Properties
 
 -(CardMatchingGame *)game
 {
@@ -37,18 +32,8 @@
                                                    usingDeck:[self createDeck]
                                            usingMatchModeNum:self.numberCardMatchingMode];
     }
-
+    
     return _game;
-}
-
--(UIView *)cardViewForCard:(Card *)card toDisplayInRect:(CGRect)rect
-{
-    return nil; // to be implemented by concrete class
-}
-
--(Deck *)createDeck
-{
-    return nil; // // to be implemented by concrete class
 }
 
 -(Grid *)cardDisplayGrid
@@ -58,6 +43,36 @@
     }
     
     return _cardDisplayGrid;
+}
+
+-(NSMutableArray *)cardButtons
+{
+    if (!_cardButtons) {
+        _cardButtons = [NSMutableArray array];
+    }
+    
+    return _cardButtons;
+}
+
+#pragma mark - View Life Cycle
+
+-(void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    
+    [self setupNewGame];
+}
+
+#pragma mark
+
+-(UIView *)viewForCard:(Card *)card toDisplayInRect:(CGRect)rect
+{
+    return nil; // to be implemented by concrete class
+}
+
+-(Deck *)createDeck
+{
+    return nil; // // to be implemented by concrete class
 }
 
 -(void)setupNewGame
@@ -81,15 +96,22 @@
     [self drawUI:NO];
 }
 
+#define CARD_ASPECT_RATIO 0.67
+#define MIN_CARD_HEIGHT 96
+#define MIN_CARD_WIDTH 64
+
 -(void)drawUI:(BOOL)isNewGame
 {
     if (isNewGame) {
         // reset the grid to original size (cards may have been added or removed)
         self.cardDisplayGrid.size = self.cardDisplayView.bounds.size;
-        self.cardDisplayGrid.cellAspectRatio = 0.67;
+        self.cardDisplayGrid.cellAspectRatio = CARD_ASPECT_RATIO;
         self.cardDisplayGrid.minimumNumberOfCells = self.numberOfCards;
-        self.cardDisplayGrid.minCellHeight = 96;
-        self.cardDisplayGrid.minCellWidth = 64;
+        self.cardDisplayGrid.minCellHeight = MIN_CARD_HEIGHT; // delete this code?
+        self.cardDisplayGrid.minCellWidth = MIN_CARD_WIDTH; // delete this code?
+        
+        // reset our array that holds the card views
+        self.cardButtons = [NSMutableArray array];
     }
         
     // display the cards in the grid
@@ -100,11 +122,28 @@
             Card *cardToDisplay = [self.game cardAtIndex:cardIndex];
             CGRect rectToDisplayCardIn = [self.cardDisplayGrid frameOfCellAtRow:i inColumn:j];
                 
-            UIView *nextCard = [self cardViewForCard:cardToDisplay toDisplayInRect:rectToDisplayCardIn];
-                
-            [self.cardButtons addObject:nextCard];
-            [self.cardDisplayView addSubview:nextCard];
-                
+            UIView *cardView = [self viewForCard:cardToDisplay toDisplayInRect:rectToDisplayCardIn];
+            
+            // self.cardButtons[cardIndex] = [self viewForCard:cardToDisplay toDisplayInRect:rectToDisplayCardIn]; // will changing the view inside the cardbutton array also change the view inside the cardDisplayView?? Do they point to the same location?
+            //[self.cardDisplayView setNeedsDisplay];
+            
+            if (isNewGame) {
+                [self.cardButtons addObject:cardView];
+                [self.cardDisplayView addSubview:cardView];
+            } else {
+                if (self.game.lastCardChosen == cardToDisplay) { // FIX THIS LINE
+                    
+                    // remove the old view for card just chosen
+                    [self.cardButtons[cardIndex] removeFromSuperview];
+                    [self.cardButtons removeObjectAtIndex:cardIndex];
+                    
+                    // add new view for card just chosen
+                    [self.cardButtons insertObject:cardView atIndex:cardIndex];
+                    [self.cardDisplayView addSubview:cardView];
+                }
+            }
+
+            
             cardIndex++;
         }
     }
