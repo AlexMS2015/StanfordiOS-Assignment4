@@ -47,15 +47,15 @@
             cardToDisplay.shape = SQUIGGLESHAPE;
         }
         
-        if (setCard.shading == 1) {
-            cardToDisplay.shape = NONE;
-        } else if (setCard.shading == 2) {
-            cardToDisplay.shape = STRIPED;
+        if (setCard.shading == 0) {
+            cardToDisplay.shading = NONE;
+        } else if (setCard.shading == 1) {
+            cardToDisplay.shading = STRIPED;
         } else {
-            cardToDisplay.shape = FILLED;
+            cardToDisplay.shading = FILLED;
         }
         
-        cardToDisplay.faceUp = setCard.isChosen;
+        cardToDisplay.faceUp = !setCard.isChosen;
         
         return cardToDisplay;
     } else {

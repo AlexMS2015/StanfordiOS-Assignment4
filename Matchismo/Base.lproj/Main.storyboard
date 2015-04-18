@@ -104,6 +104,7 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="cardDisplayView" destination="3XN-cf-La9" id="vRH-ao-PJs"/>
                         <outlet property="scoreLabel" destination="Lrh-Px-po0" id="1wY-E9-kmP"/>
                     </connections>
                 </viewController>

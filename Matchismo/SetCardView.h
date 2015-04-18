@@ -9,15 +9,15 @@
 #import <UIKit/UIKit.h>
 
 typedef NS_ENUM(NSUInteger, ShapeName) {
-    DIAMONDSHAPE = 1,
-    OVALSHAPE = 2,
-    SQUIGGLESHAPE = 3
+    DIAMONDSHAPE = 0,
+    OVALSHAPE = 1,
+    SQUIGGLESHAPE = 2
 };
 
 typedef NS_ENUM(NSUInteger, ShapeShading) {
-    NONE = 1,
-    STRIPED = 2,
-    FILLED = 3
+    NONE = 0,
+    STRIPED = 1,
+    FILLED = 2
 };
 
 @interface SetCardView : UIView

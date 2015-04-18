@@ -18,16 +18,16 @@
     
     if (self) {
         
-        for (int i = 0; i < 3; i++) {
+        for (int i = 1; i < 4; i++) {
             for (int j = 0; j < 3; j++) {
                 for (int k = 0; k < 3; k++) {
                     for (int l = 0; l < 3; l++) {
                         SetCard *setCard = [[SetCard alloc] init];
                         
-                        setCard.number = [NSNumber numberWithInteger:i];
-                        setCard.symbol = [NSNumber numberWithInteger:j];
-                        setCard.shading = [NSNumber numberWithInteger:k];
-                        setCard.colour = [NSNumber numberWithInteger:l];
+                        setCard.number = i;
+                        setCard.symbol = j;
+                        setCard.shading = k;
+                        setCard.colour = l;
                         
                         [self addCard:setCard];
                     }

@@ -23,7 +23,7 @@
     [super viewDidLoad];
     
     self.numberCardMatchingMode = 2;
-    self.numberOfCards = 12;
+    self.numberOfCards = 24;
 }
 
 -(Deck *)createDeck

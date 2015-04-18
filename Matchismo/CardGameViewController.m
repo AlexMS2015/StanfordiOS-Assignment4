@@ -9,7 +9,6 @@
 #import "CardGameViewController.h"
 #import "CardMatchingGame.h"
 #import "Grid.h"
-#import "PlayingCardView.h"
 
 @interface CardGameViewController ()
 // interface elements
@@ -28,7 +27,7 @@
 -(CardMatchingGame *)game
 {
     if (!_game) {
-        _game  = [[CardMatchingGame alloc] initWithCardCount:[self.cardButtons count]
+        _game  = [[CardMatchingGame alloc] initWithCardCount:self.numberOfCards
                                                    usingDeck:[self createDeck]
                                            usingMatchModeNum:self.numberCardMatchingMode];
     }
@@ -56,7 +55,7 @@
 
 #pragma mark - View Life Cycle
 
--(void)viewDidAppear:(BOOL)animated
+-(void)viewDidAppear:(BOOL)animated // this needs to be fixed as a new game is created everytime the user clicks away from the tab and then back onto it
 {
     [super viewDidAppear:animated];
     
@@ -107,44 +106,49 @@
         self.cardDisplayGrid.size = self.cardDisplayView.bounds.size;
         self.cardDisplayGrid.cellAspectRatio = CARD_ASPECT_RATIO;
         self.cardDisplayGrid.minimumNumberOfCells = self.numberOfCards;
-        self.cardDisplayGrid.minCellHeight = MIN_CARD_HEIGHT; // delete this code?
-        self.cardDisplayGrid.minCellWidth = MIN_CARD_WIDTH; // delete this code?
+        //self.cardDisplayGrid.minCellHeight = MIN_CARD_HEIGHT; // delete this code?
+        //self.cardDisplayGrid.minCellWidth = MIN_CARD_WIDTH; // delete this code?
         
         // reset our array that holds the card views
         self.cardButtons = [NSMutableArray array];
     }
-        
+    
+    NSLog(@"%d",self.cardDisplayGrid.rowCount);
+    NSLog(@"%d",self.cardDisplayGrid.columnCount);
+    
     // display the cards in the grid
     int cardIndex = 0;
+    
     for (int i = 0; i < self.cardDisplayGrid.rowCount; i++) {
         for (int j = 0; j < self.cardDisplayGrid.columnCount; j++) {
-                
-            Card *cardToDisplay = [self.game cardAtIndex:cardIndex];
-            CGRect rectToDisplayCardIn = [self.cardDisplayGrid frameOfCellAtRow:i inColumn:j];
-                
-            UIView *cardView = [self viewForCard:cardToDisplay toDisplayInRect:rectToDisplayCardIn];
             
-            // self.cardButtons[cardIndex] = [self viewForCard:cardToDisplay toDisplayInRect:rectToDisplayCardIn]; // will changing the view inside the cardbutton array also change the view inside the cardDisplayView?? Do they point to the same location?
-            //[self.cardDisplayView setNeedsDisplay];
-            
-            if (isNewGame) {
-                [self.cardButtons addObject:cardView];
-                [self.cardDisplayView addSubview:cardView];
-            } else {
-                if (self.game.lastCardChosen == cardToDisplay) { // FIX THIS LINE
-                    
-                    // remove the old view for card just chosen
-                    [self.cardButtons[cardIndex] removeFromSuperview];
-                    [self.cardButtons removeObjectAtIndex:cardIndex];
-                    
-                    // add new view for card just chosen
-                    [self.cardButtons insertObject:cardView atIndex:cardIndex];
+            if (cardIndex < self.numberOfCards) {
+                Card *cardToDisplay = [self.game cardAtIndex:cardIndex];
+                CGRect rectToDisplayCardIn = [self.cardDisplayGrid frameOfCellAtRow:i inColumn:j];
+                
+                UIView *cardView = [self viewForCard:cardToDisplay toDisplayInRect:rectToDisplayCardIn];
+                
+                // self.cardButtons[cardIndex] = [self viewForCard:cardToDisplay toDisplayInRect:rectToDisplayCardIn]; // will changing the view inside the cardbutton array also change the view inside the cardDisplayView?? Do they point to the same location?
+                //[self.cardDisplayView setNeedsDisplay];
+                
+                if (isNewGame) {
+                    [self.cardButtons addObject:cardView];
                     [self.cardDisplayView addSubview:cardView];
-                }
+                } /*else {
+                   if (self.game.lastCardChosen == cardToDisplay) { // FIX THIS LINE
+                   
+                   // remove the old view for card just chosen
+                   [self.cardButtons[cardIndex] removeFromSuperview];
+                   [self.cardButtons removeObjectAtIndex:cardIndex];
+                   
+                   // add new view for card just chosen
+                   [self.cardButtons insertObject:cardView atIndex:cardIndex];
+                   [self.cardDisplayView addSubview:cardView];
+                   }
+                   }*/
+                
+                cardIndex++;
             }
-
-            
-            cardIndex++;
         }
     }
 
