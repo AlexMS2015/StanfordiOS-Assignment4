@@ -12,10 +12,6 @@
 #import "PlayingCardView.h"
 #import "Grid.h"
 
-@interface PlayingCardGameViewController ()
-
-@end
-
 @implementation PlayingCardGameViewController
 
 -(void)awakeFromNib

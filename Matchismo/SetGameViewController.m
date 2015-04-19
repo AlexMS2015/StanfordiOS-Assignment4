@@ -11,10 +11,6 @@
 #import "SetCard.h"
 #import "SetCardView.h"
 
-@interface SetGameViewController ()
-
-@end
-
 @implementation SetGameViewController
 
 -(void)awakeFromNib
@@ -53,7 +49,7 @@
             cardToDisplay.shading = FILLED;
         }
         
-        cardToDisplay.faceUp = !setCard.isChosen;
+        cardToDisplay.faceUp = setCard.isChosen;
         
         return cardToDisplay;
     } else {

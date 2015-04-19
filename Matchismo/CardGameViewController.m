@@ -83,16 +83,21 @@
     [self drawUI:YES];
 }
 
-- (IBAction)newGame:(UIBarButtonItem *)sender
+-(IBAction)newGame:(UIBarButtonItem *)sender
 {
     [self setupNewGame];
 }
 
-- (IBAction)touchCardButton:(UIButton *)sender
+- (IBAction)tapCard:(UITapGestureRecognizer *)sender
 {
-    int chosenButtonIndex = [self.cardButtons indexOfObject:sender];
-    [self.game chooseCardAtIndex:chosenButtonIndex];
-    [self drawUI:NO];
+    CGPoint touchPoint = [sender locationInView:self.cardDisplayView];
+        
+    UIView *card = [self.cardDisplayView hitTest:touchPoint withEvent:nil];
+    if (![card isMemberOfClass:[UIView class]]) {
+        int chosenButtonIndex = [self.cardButtons indexOfObject:card];
+        [self.game chooseCardAtIndex:chosenButtonIndex];
+        [self drawUI:NO];
+    }
 }
 
 #define CARD_ASPECT_RATIO 0.67
@@ -106,44 +111,56 @@
         self.cardDisplayGrid.size = self.cardDisplayView.bounds.size;
         self.cardDisplayGrid.cellAspectRatio = CARD_ASPECT_RATIO;
         self.cardDisplayGrid.minimumNumberOfCells = self.numberOfCards;
-        //self.cardDisplayGrid.minCellHeight = MIN_CARD_HEIGHT; // delete this code?
-        //self.cardDisplayGrid.minCellWidth = MIN_CARD_WIDTH; // delete this code?
-        
-        // reset our array that holds the card views
         self.cardButtons = [NSMutableArray array];
     }
     
     // display the cards in the grid
+    
+    /*for (UIView *cardView in self.cardDisplayView.subviews) {
+        [cardView removeFromSuperview];
+    }*/
+    
+    [self.cardDisplayView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop){
+        [obj removeFromSuperview];
+    }];
+    
+    //self.cardButtons = [NSMutableArray array];
+    
     int cardIndex = 0;
     
     for (int i = 0; i < self.cardDisplayGrid.rowCount; i++) {
         for (int j = 0; j < self.cardDisplayGrid.columnCount; j++) {
             
             if (cardIndex < self.numberOfCards) {
-                Card *cardToDisplay = [self.game cardAtIndex:cardIndex];
+    
+                // THIS DOESN'T WORK??
+                Card *cardToDisplay;
+                for (int i = cardIndex; i < self.numberOfCards; i++) {
+                    cardToDisplay = [self.game cardAtIndex:i];
+                    if (!cardToDisplay.isMatched) {
+                        break;
+                    } else {
+                        [self.cardButtons removeObjectAtIndex:i];
+                        cardIndex--;
+                    }
+                }
+                
                 CGRect rectToDisplayCardIn = [self.cardDisplayGrid frameOfCellAtRow:i inColumn:j];
-                
                 UIView *cardView = [self viewForCard:cardToDisplay toDisplayInRect:rectToDisplayCardIn];
+
+                //if (!cardToDisplay.isMatched) {
+                if (!isNewGame) {
+                    [self.cardButtons removeObjectAtIndex:cardIndex];
+                }
                 
-                // self.cardButtons[cardIndex] = [self viewForCard:cardToDisplay toDisplayInRect:rectToDisplayCardIn]; // will changing the view inside the cardbutton array also change the view inside the cardDisplayView?? Do they point to the same location?
-                //[self.cardDisplayView setNeedsDisplay];
-                
-                if (isNewGame) {
-                    [self.cardButtons addObject:cardView];
+                    [self.cardButtons insertObject:cardView atIndex:cardIndex];
                     [self.cardDisplayView addSubview:cardView];
-                } /*else {
-                   if (self.game.lastCardChosen == cardToDisplay) { // FIX THIS LINE
-                   
-                   // remove the old view for card just chosen
-                   [self.cardButtons[cardIndex] removeFromSuperview];
-                   [self.cardButtons removeObjectAtIndex:cardIndex];
-                   
-                   // add new view for card just chosen
-                   [self.cardButtons insertObject:cardView atIndex:cardIndex];
-                   [self.cardDisplayView addSubview:cardView];
-                   }
-                   }*/
+                /*} else {
+                    i-=1;
+                    j-=1;
+                }*/
                 
+                    
                 cardIndex++;
             }
         }
