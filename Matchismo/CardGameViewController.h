@@ -14,7 +14,7 @@
 
 @interface CardGameViewController : UIViewController
 
-// the following 2 properties should be set by concrete subclasses in their viewDidLoad: method
+// the following 2 properties should be set by concrete subclasses in their awakeFromNib: method
 @property NSUInteger numberCardMatchingMode;
 @property NSUInteger numberOfCards;
 

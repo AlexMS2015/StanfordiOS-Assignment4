@@ -18,10 +18,8 @@
 
 @implementation PlayingCardGameViewController
 
--(void)viewDidLoad
-{
-    [super viewDidLoad];
-    
+-(void)awakeFromNib
+{    
     self.numberCardMatchingMode = 2;
     self.numberOfCards = 24;
 }

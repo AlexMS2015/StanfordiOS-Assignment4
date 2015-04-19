@@ -17,10 +17,8 @@
 
 @implementation SetGameViewController
 
--(void)viewDidLoad
-{
-    [super viewDidLoad];
-    
+-(void)awakeFromNib
+{    
     self.numberCardMatchingMode = 3;
     self.numberOfCards = 12;
 }

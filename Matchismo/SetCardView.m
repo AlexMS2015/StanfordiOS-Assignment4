@@ -15,11 +15,13 @@
     return @[[UIColor greenColor], [UIColor redColor], [UIColor purpleColor]][index];
 }
 
+#define CORNER_RADIUS 2.0
+
 -(void)drawRect:(CGRect)rect
 {
     
     // Drawing code
-    UIBezierPath *roundedRect = [UIBezierPath bezierPathWithRoundedRect:self.bounds cornerRadius:2];
+    UIBezierPath *roundedRect = [UIBezierPath bezierPathWithRoundedRect:self.bounds cornerRadius:CORNER_RADIUS];
     
     [roundedRect addClip];
     
@@ -37,25 +39,25 @@
     }
 }
 
-#define OFFSET1_PERCENTAGE 0.3 // % of view width from horizontal centre
+#define OFFSET1_PERCENTAGE 0.3 // % of view width from horizontal centre. 0.3 = 30%
 #define OFFSET2_PERCENTAGE 0.2
 
 -(void)drawShapes
 {    
     if (self.number == 1 || self.number == 3) {
-        [self drawShape:OVALSHAPE
+        [self drawShape:self.shape
              withOffset:0
                mirrored:NO];
     }
     
     if (self.number == 2) {
-        [self drawShape:OVALSHAPE
+        [self drawShape:self.shape
              withOffset:OFFSET2_PERCENTAGE
                mirrored:YES];
     }
     
     if (self.number == 3) {
-        [self drawShape:OVALSHAPE
+        [self drawShape:self.shape
              withOffset:OFFSET1_PERCENTAGE
                mirrored:YES];
     }
@@ -78,38 +80,39 @@
 #define SYMBOLTOVIEWRATIO_WIDTH 0.8
 #define SYMBOLTOVIEWRATIO_HEIGHT 0.2
 
--(UIBezierPath *)drawShape:(ShapeName)symbol
+-(UIBezierPath *)drawShape:(ShapeName)shape
        withOffset:(CGFloat)offset
 {
-
     CGPoint center = CGPointMake(self.bounds.size.width/2, self.bounds.size.height/2); // centre in OWN co-ordinate system
     
     CGFloat width = self.bounds.size.width;
     CGFloat height = self.bounds.size.height;
     
-    CGPoint shapeOrigin =
-        CGPointMake((width * (1 - SYMBOLTOVIEWRATIO_WIDTH)) / 2 , center.y + (offset * height) - (SYMBOLTOVIEWRATIO_HEIGHT/2 * height));
+    CGPoint shapeRectOrigin =
+        CGPointMake((width * (1 - SYMBOLTOVIEWRATIO_WIDTH)) / 2 , center.y - (SYMBOLTOVIEWRATIO_HEIGHT/2 * height) + + (offset * height));
     
-    CGSize shapeSize = CGSizeMake(SYMBOLTOVIEWRATIO_WIDTH * width, SYMBOLTOVIEWRATIO_HEIGHT * height);
+    CGSize shapeRectSize = CGSizeMake(SYMBOLTOVIEWRATIO_WIDTH * width, SYMBOLTOVIEWRATIO_HEIGHT * height);
     
     CGRect rectToDrawShapeIn =
-        CGRectMake(shapeOrigin.x, shapeOrigin.y, shapeSize.width, shapeSize.height);
+        CGRectMake(shapeRectOrigin.x, shapeRectOrigin.y, shapeRectSize.width, shapeRectSize.height);
     
     UIBezierPath *shapeToDraw = [[UIBezierPath alloc] init];
     
-    if (self.shape == DIAMONDSHAPE) {
+    if (shape == DIAMONDSHAPE) {
         shapeToDraw = [self diamondInRect:rectToDrawShapeIn];
-    } else if (self.shape == OVALSHAPE) {
+    } else if (shape == OVALSHAPE) {
         shapeToDraw = [self ovalInRect:rectToDrawShapeIn];
-    } else if (self.shape == SQUIGGLESHAPE) {
+    } else if (shape == SQUIGGLESHAPE) {
         shapeToDraw = [self squiggleInRect:rectToDrawShapeIn];
     }
     
-    [[self colourFromIndex:self.colour] setStroke];
+    UIColor *shapeColour = [self colourFromIndex:self.colour];
+    
+    [shapeColour setStroke];
     [shapeToDraw stroke];
     
     if (self.shading == FILLED) {
-        [[self colourFromIndex:self.colour] setFill];
+        [shapeColour setFill];
         [shapeToDraw fill];
     } else if (self.shading == STRIPED) {
         [self addStripesToShape:shapeToDraw inRect:rectToDrawShapeIn];
@@ -142,12 +145,6 @@
     UIBezierPath *oval = [UIBezierPath bezierPathWithOvalInRect:rect];
 
     return oval;
-}
-
--(void)displayPointInTerminal:(CGPoint)point
-{
-    NSLog(@"X = %f", point.x);
-    NSLog(@"Y = %f", point.y);
 }
 
 -(UIBezierPath *)squiggleInRect:(CGRect)rect
@@ -185,39 +182,36 @@
     return squiggle;
 }
 
+#define NUMBER_STRIPES_PERSHAPERECT 25
+
 -(void)addStripesToShape:(UIBezierPath *)shape inRect:(CGRect)rect
 {
-    CGFloat horizontalIncrement = rect.size.width / 25;
+    CGFloat horizontalIncrement = rect.size.width / NUMBER_STRIPES_PERSHAPERECT;
     CGFloat verticalIncrement = rect.size.height / 50;
     
     UIBezierPath *stripes = [[UIBezierPath alloc] init];
     
     for (CGFloat horizontalLocation = rect.origin.x; horizontalLocation < rect.origin.x + rect.size.width; horizontalLocation += horizontalIncrement) {
         
-        CGPoint startPoint;
+        [stripes moveToPoint:CGPointMake(horizontalLocation, rect.origin.y)];
+
+        CGPoint currentPoint;
+        BOOL foundFirstPoint = NO;
         
         for (CGFloat verticalLocation = rect.origin.y; verticalLocation < rect.origin.y + rect.size.height; verticalLocation += verticalIncrement) {
             
-            CGPoint currentPoint = CGPointMake(horizontalLocation, verticalLocation);
+            currentPoint = CGPointMake(horizontalLocation, verticalLocation);
             
             if ([shape containsPoint:currentPoint]) {
-                startPoint = currentPoint;
-                break;
+                if (!foundFirstPoint) {
+                    [stripes moveToPoint:currentPoint];
+                    foundFirstPoint = YES;
+                } else if (foundFirstPoint) {
+                    [stripes addLineToPoint:currentPoint];
+                    [stripes moveToPoint:currentPoint];
+                }
             }
         }
-        
-        CGPoint endPoint;
-        for (CGFloat verticalLocation = startPoint.y; verticalLocation < rect.origin.y + rect.size.height; verticalLocation += verticalIncrement) {
-            
-            endPoint = CGPointMake(horizontalLocation, verticalLocation);
-            
-            if (![shape containsPoint:endPoint]) {
-                break;
-            }
-        }
-        
-        [stripes moveToPoint:startPoint];
-        [stripes addLineToPoint:endPoint];
     }
     
     [[self colourFromIndex:self.colour] setStroke];

@@ -55,9 +55,9 @@
 
 #pragma mark - View Life Cycle
 
--(void)viewDidAppear:(BOOL)animated // this needs to be fixed as a new game is created everytime the user clicks away from the tab and then back onto it
+-(void)viewDidLoad
 {
-    [super viewDidAppear:animated];
+    [super viewDidLoad];
     
     [self setupNewGame];
 }
@@ -112,9 +112,6 @@
         // reset our array that holds the card views
         self.cardButtons = [NSMutableArray array];
     }
-    
-    NSLog(@"%d",self.cardDisplayGrid.rowCount);
-    NSLog(@"%d",self.cardDisplayGrid.columnCount);
     
     // display the cards in the grid
     int cardIndex = 0;
