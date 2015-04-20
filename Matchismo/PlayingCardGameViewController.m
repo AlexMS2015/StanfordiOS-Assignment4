@@ -17,7 +17,7 @@
 -(void)awakeFromNib
 {    
     self.numberCardMatchingMode = 2;
-    self.numberOfCards = 24;
+    self.numberOfCardsInitial = 24;
 }
 
 -(Deck *)createDeck
@@ -33,12 +33,17 @@
         PlayingCardView *cardToDisplay = [[PlayingCardView alloc] initWithFrame:rect];
         cardToDisplay.rank = playingCard.rank;
         cardToDisplay.suit = playingCard.suit;
-        cardToDisplay.faceUp = playingCard.isChosen;
+        cardToDisplay.faceUp = YES;// playingCard.isChosen;
         
         return cardToDisplay;
     } else {
         return nil;
     }
+}
+
+- (void)updateCardView:(UIView *)cardView atIndex:(NSUInteger)index usingCard:(Card *)card
+{
+    
 }
 
 @end

@@ -16,7 +16,7 @@
 -(void)awakeFromNib
 {    
     self.numberCardMatchingMode = 3;
-    self.numberOfCards = 12;
+    self.numberOfCardsInitial = 12;
 }
 
 -(Deck *)createDeck

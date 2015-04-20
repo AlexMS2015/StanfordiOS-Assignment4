@@ -15,6 +15,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *scoreLabel;
 @property (weak, nonatomic) IBOutlet UIView *cardDisplayView;
 
+@property (nonatomic) NSUInteger numberOfCardsInPlay;
 @property (strong, nonatomic) NSMutableArray *cardButtons; // array to hold the card views
 @property (strong, nonatomic) CardMatchingGame *game; // game model. Subclass should set this.
 @property (strong, nonatomic) Grid *cardDisplayGrid;
@@ -27,7 +28,7 @@
 -(CardMatchingGame *)game
 {
     if (!_game) {
-        _game  = [[CardMatchingGame alloc] initWithCardCount:self.numberOfCards
+        _game  = [[CardMatchingGame alloc] initWithCardCount:self.numberOfCardsInitial
                                                    usingDeck:[self createDeck]
                                            usingMatchModeNum:self.numberCardMatchingMode];
     }
@@ -76,7 +77,7 @@
 
 -(void)setupNewGame
 {
-    self.game  = [[CardMatchingGame alloc] initWithCardCount:self.numberOfCards
+    self.game  = [[CardMatchingGame alloc] initWithCardCount:self.numberOfCardsInitial
                                                    usingDeck:[self createDeck]
                                            usingMatchModeNum:self.numberCardMatchingMode];
     
@@ -97,7 +98,8 @@
         int chosenButtonIndex = [self.cardButtons indexOfObject:card];
         [self.game chooseCardAtIndex:chosenButtonIndex];
         if ([self.game cardAtIndex:chosenButtonIndex].isMatched) {
-            self.numberOfCards =12;
+            [self animateOutMatchedCards];
+            self.numberOfCardsInPlay -= self.numberCardMatchingMode;
             [self drawCardGrid];
         }
         [self drawUI:NO];
@@ -105,7 +107,6 @@
 }
 
 #define CARD_ASPECT_RATIO 0.67
-#define NUMBER_OF_COLUMNS 3
 #define MIN_CARD_HEIGHT 96
 #define MIN_CARD_WIDTH 64
 
@@ -114,56 +115,118 @@
     self.cardDisplayGrid = [[Grid alloc] init];
     self.cardDisplayGrid.size = self.cardDisplayView.bounds.size;
     self.cardDisplayGrid.cellAspectRatio = CARD_ASPECT_RATIO;
-    self.cardDisplayGrid.minimumNumberOfCells = self.numberOfCards;
+    self.cardDisplayGrid.minimumNumberOfCells = self.numberOfCardsInPlay;
     NSLog(@"rows: %d", self.cardDisplayGrid.rowCount);
     NSLog(@"columns: %d", self.cardDisplayGrid.columnCount);
+}
+
+-(void)animateOutMatchedCards
+{
+    for (int cardNum = 0; cardNum < self.numberOfCardsInPlay; cardNum++) {
+        Card *card = [self.game cardAtIndex:cardNum];
+        
+        if (card.isMatched) {
+            
+            UIView *cardView = self.cardButtons[cardNum];
+            
+            UIView *viewToAnimate = [self viewForCard:card toDisplayInRect:cardView.frame];
+            
+            [UIView animateWithDuration:2.0
+                             animations:^{
+                                 viewToAnimate.alpha = 0.0;
+                             }
+                             completion:^(BOOL fin){NSLog(@"finished? %d", fin);}];
+        }
+        if (card.isMatched) {
+            break;
+        }
+    }
+}
+
+-(void)testUI
+{
+    int cardIndex = 0;
+
+    while (cardIndex < self.numberOfCardsInPlay) {
+        
+        while ([self.game cardAtIndex:cardIndex].isMatched) {
+            [self.cardButtons[cardIndex] removeFromSuperview];
+                cardIndex++;
+            }
+        Card *cardToDisplay = [self.game cardAtIndex:cardIndex];
+        
+        int row = cardIndex / self.cardDisplayGrid.columnCount;
+        int column = cardIndex % self.cardDisplayGrid.columnCount;
+        
+        CGRect rectToDisplayCardIn = [self.cardDisplayGrid frameOfCellAtRow:row inColumn:column];
+        
+        if (![self.cardDisplayView.subviews containsObject:self.cardButtons[cardIndex]]) {
+            UIView *cardView = [self viewForCard:cardToDisplay toDisplayInRect:rectToDisplayCardIn];
+            [self.cardDisplayView addSubview:cardView];
+        } else {
+            NSLog(@"already here");
+        }
+        
+        // WRITE PSEUDE CODE THIS IS WAYYYY TOO SLOW THIS WAY!!!
+        
+
+        
+        cardIndex++;
+    }
 }
 
 -(void)drawUI:(BOOL)isNewGame
 {
     if (isNewGame) {
-        // reset the grid to original size (cards may have been added or removed)
+        self.numberOfCardsInPlay = self.numberOfCardsInitial;
         [self drawCardGrid];
     }
     
     // display the cards in the grid
+    [self testUI];
     
-    if (self.cardDisplayView.subviews) {
+    // remove all existing card views
+    /*if (self.cardDisplayView.subviews) {
         [self.cardDisplayView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop){
             [obj removeFromSuperview];
         }];
-    }
+    }*/
     
+    /*
     int cardIndex = 0;
-    
     for (int i = 0; i < self.cardDisplayGrid.rowCount; i++) {
         for (int j = 0; j < self.cardDisplayGrid.columnCount; j++) {
             
-            if (cardIndex < self.numberOfCards) {
+            if (cardIndex < self.numberOfCardsInitial) {
                 
+                //NSLog(@"Row: %d, Col: %d, Card: %d", i+1, j+1, cardIndex+1);
+                
+                // get the next NON-MATCHED card to display
+                while ([self.game cardAtIndex:cardIndex].isMatched) {
+                    [self.cardButtons[cardIndex] removeFromSuperview];
+                    cardIndex++;
+                }
                 Card *cardToDisplay = [self.game cardAtIndex:cardIndex];
+                
                 CGRect rectToDisplayCardIn = [self.cardDisplayGrid frameOfCellAtRow:i inColumn:j];
                 UIView *cardView = [self viewForCard:cardToDisplay toDisplayInRect:rectToDisplayCardIn];
-
-                /*if (!isNewGame) {
-                    //[self.cardButtons[cardIndex] removeFromSuperview];
-                    [self.cardButtons removeObjectAtIndex:cardIndex];
-                }*/
-                self.cardButtons[cardIndex] = cardView;
                 
-                [self.cardDisplayView addSubview:cardView];
-
-                if (cardToDisplay.isMatched) {
-                    //i-=1;
-                    j-=1;
-                    //self.cardDisplayGrid.minimumNumberOfCells -=1;
+                // replace the view in the cardButtons array with the updated one
+                if (!isNewGame) {
                     [self.cardButtons[cardIndex] removeFromSuperview];
                 }
-
+                self.cardButtons[cardIndex] = cardView;
+                
+                //if (!cardToDisplay.isMatched)
+                [self.cardDisplayView addSubview:cardView];
+                
                 cardIndex++;
             }
         }
     }
+    */
+
+    
 
     self.scoreLabel.text = [NSString stringWithFormat:@"Score: %d", self.game.score];
 }
