@@ -91,40 +91,48 @@
 - (IBAction)tapCard:(UITapGestureRecognizer *)sender
 {
     CGPoint touchPoint = [sender locationInView:self.cardDisplayView];
-        
+    
     UIView *card = [self.cardDisplayView hitTest:touchPoint withEvent:nil];
     if (![card isMemberOfClass:[UIView class]]) {
         int chosenButtonIndex = [self.cardButtons indexOfObject:card];
         [self.game chooseCardAtIndex:chosenButtonIndex];
+        if ([self.game cardAtIndex:chosenButtonIndex].isMatched) {
+            self.numberOfCards =12;
+            [self drawCardGrid];
+        }
         [self drawUI:NO];
     }
 }
 
 #define CARD_ASPECT_RATIO 0.67
+#define NUMBER_OF_COLUMNS 3
 #define MIN_CARD_HEIGHT 96
 #define MIN_CARD_WIDTH 64
+
+-(void)drawCardGrid
+{
+    self.cardDisplayGrid = [[Grid alloc] init];
+    self.cardDisplayGrid.size = self.cardDisplayView.bounds.size;
+    self.cardDisplayGrid.cellAspectRatio = CARD_ASPECT_RATIO;
+    self.cardDisplayGrid.minimumNumberOfCells = self.numberOfCards;
+    NSLog(@"rows: %d", self.cardDisplayGrid.rowCount);
+    NSLog(@"columns: %d", self.cardDisplayGrid.columnCount);
+}
 
 -(void)drawUI:(BOOL)isNewGame
 {
     if (isNewGame) {
         // reset the grid to original size (cards may have been added or removed)
-        self.cardDisplayGrid.size = self.cardDisplayView.bounds.size;
-        self.cardDisplayGrid.cellAspectRatio = CARD_ASPECT_RATIO;
-        self.cardDisplayGrid.minimumNumberOfCells = self.numberOfCards;
-        self.cardButtons = [NSMutableArray array];
+        [self drawCardGrid];
     }
     
     // display the cards in the grid
     
-    /*for (UIView *cardView in self.cardDisplayView.subviews) {
-        [cardView removeFromSuperview];
-    }*/
-    
-    [self.cardDisplayView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop){
-        [obj removeFromSuperview];
-    }];
-    
-    //self.cardButtons = [NSMutableArray array];
+    if (self.cardDisplayView.subviews) {
+        [self.cardDisplayView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop){
+            [obj removeFromSuperview];
+        }];
+    }
     
     int cardIndex = 0;
     
@@ -132,35 +140,26 @@
         for (int j = 0; j < self.cardDisplayGrid.columnCount; j++) {
             
             if (cardIndex < self.numberOfCards) {
-    
-                // THIS DOESN'T WORK??
-                Card *cardToDisplay;
-                for (int i = cardIndex; i < self.numberOfCards; i++) {
-                    cardToDisplay = [self.game cardAtIndex:i];
-                    if (!cardToDisplay.isMatched) {
-                        break;
-                    } else {
-                        [self.cardButtons removeObjectAtIndex:i];
-                        cardIndex--;
-                    }
-                }
                 
+                Card *cardToDisplay = [self.game cardAtIndex:cardIndex];
                 CGRect rectToDisplayCardIn = [self.cardDisplayGrid frameOfCellAtRow:i inColumn:j];
                 UIView *cardView = [self viewForCard:cardToDisplay toDisplayInRect:rectToDisplayCardIn];
 
-                //if (!cardToDisplay.isMatched) {
-                if (!isNewGame) {
+                /*if (!isNewGame) {
+                    //[self.cardButtons[cardIndex] removeFromSuperview];
                     [self.cardButtons removeObjectAtIndex:cardIndex];
-                }
-                
-                    [self.cardButtons insertObject:cardView atIndex:cardIndex];
-                    [self.cardDisplayView addSubview:cardView];
-                /*} else {
-                    i-=1;
-                    j-=1;
                 }*/
+                self.cardButtons[cardIndex] = cardView;
                 
-                    
+                [self.cardDisplayView addSubview:cardView];
+
+                if (cardToDisplay.isMatched) {
+                    //i-=1;
+                    j-=1;
+                    //self.cardDisplayGrid.minimumNumberOfCells -=1;
+                    [self.cardButtons[cardIndex] removeFromSuperview];
+                }
+
                 cardIndex++;
             }
         }
