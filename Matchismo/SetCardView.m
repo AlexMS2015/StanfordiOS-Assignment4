@@ -15,7 +15,7 @@
     return @[[UIColor greenColor], [UIColor redColor], [UIColor purpleColor]][index];
 }
 
-#define CORNER_RADIUS 2.0
+#define CORNER_RADIUS 5.0
 
 -(void)drawRect:(CGRect)rect
 {
@@ -23,20 +23,21 @@
     // Drawing code
     UIBezierPath *roundedRect = [UIBezierPath bezierPathWithRoundedRect:self.bounds cornerRadius:CORNER_RADIUS];
     
-    [roundedRect addClip];
+    [roundedRect addClip]; // set this so that when filling the bounds of self, it will only fill inside the roundedrect portion of the set card view
     
-    [[UIColor whiteColor] setFill];
-    //UIRectFill(self.bounds);
-    [roundedRect fill];
+    
+    if (self.isChosen) {
+        [[UIColor grayColor] setFill];
+    } else {
+        [[UIColor whiteColor] setFill];
+    }
+
+    UIRectFill(self.bounds);
     
     [[UIColor blackColor] setStroke];
     [roundedRect stroke];
     
-    if (self.faceUp) {
-        [self drawShapes];
-    } else {
-        [[UIImage imageNamed:@"cardback"] drawInRect:self.bounds];
-    }
+    [self drawShapes];
 }
 
 #define OFFSET1_PERCENTAGE 0.3 // % of view width from horizontal centre. 0.3 = 30%
@@ -182,7 +183,7 @@
     return squiggle;
 }
 
-#define NUMBER_STRIPES_PERSHAPERECT 25
+#define NUMBER_STRIPES_PERSHAPERECT 15
 
 -(void)addStripesToShape:(UIBezierPath *)shape inRect:(CGRect)rect
 {

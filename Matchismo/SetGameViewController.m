@@ -28,33 +28,48 @@
 {
     if ([card isMemberOfClass:[SetCard class]]) {
         SetCard *setCard = (SetCard *)card;
-        
         SetCardView *cardToDisplay = [[SetCardView alloc] initWithFrame:rect];
-        cardToDisplay.number = setCard.number;
-        cardToDisplay.colour = setCard.colour;
         
-        if (setCard.symbol == 1) {
-            cardToDisplay.shape = DIAMONDSHAPE;
-        } else if (setCard.symbol == 2) {
-            cardToDisplay.shape = OVALSHAPE;
-        } else {
-            cardToDisplay.shape = SQUIGGLESHAPE;
-        }
-        
-        if (setCard.shading == 0) {
-            cardToDisplay.shading = NONE;
-        } else if (setCard.shading == 1) {
-            cardToDisplay.shading = STRIPED;
-        } else {
-            cardToDisplay.shading = FILLED;
-        }
-        
-        cardToDisplay.faceUp = setCard.isChosen;
-        
+        [self setAttributesOfCardView:cardToDisplay withCard:setCard];
+
         return cardToDisplay;
     } else {
         return nil;
     }
 }
 
+-(void)updateCardView:(UIView *)cardView withCard:(Card *)card toDisplayInRect:(CGRect)rectToDisplayCardIn
+{
+    if ([cardView isMemberOfClass:[SetCardView class]] && [card isMemberOfClass:[SetCard class]]) {
+        SetCardView *setCardView = (SetCardView *)cardView;
+        SetCard *setCard = (SetCard *)card;
+        
+        [self setAttributesOfCardView:setCardView withCard:setCard];
+        setCardView.frame = rectToDisplayCardIn;
+    }
+}
+
+-(void)setAttributesOfCardView:(SetCardView *)setCardview withCard:(SetCard *)setCard
+{
+    setCardview.number = setCard.number;
+    setCardview.colour = setCard.colour;
+    
+    if (setCard.symbol == 1) {
+        setCardview.shape = DIAMONDSHAPE;
+    } else if (setCard.symbol == 2) {
+        setCardview.shape = OVALSHAPE;
+    } else {
+        setCardview.shape = SQUIGGLESHAPE;
+    }
+    
+    if (setCard.shading == 0) {
+        setCardview.shading = NONE;
+    } else if (setCard.shading == 1) {
+        setCardview.shading = STRIPED;
+    } else {
+        setCardview.shading = FILLED;
+    }
+    
+    setCardview.chosen = setCard.isChosen;
+}
 @end

@@ -26,6 +26,6 @@ typedef NS_ENUM(NSUInteger, ShapeShading) {
 @property (nonatomic) ShapeName shape;
 @property (nonatomic) ShapeShading shading;
 @property (nonatomic) NSUInteger colour;
-@property (nonatomic) BOOL faceUp;
+@property (nonatomic, getter = isChosen) BOOL chosen;
 
 @end

@@ -186,9 +186,18 @@
 {
     if (upsideDown) [self pushContextAndRotateUpsideDown];
     CGPoint middle = CGPointMake(self.bounds.size.width/2, self.bounds.size.height/2);
+    
     UIFont *pipFont = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
     pipFont = [pipFont fontWithSize:[pipFont pointSize] * self.bounds.size.width * PIP_FONT_SCALE_FACTOR];
-    NSAttributedString *attributedSuit = [[NSAttributedString alloc] initWithString:self.suit attributes:@{ NSFontAttributeName : pipFont }];
+    
+    UIColor *pipColour;
+    if ([self.suit isEqualToString:@"♥︎"] || [self.suit isEqualToString:@"♦︎"]) {
+        pipColour = [UIColor redColor];
+    } else {
+        pipColour = [UIColor blackColor];
+    }
+    
+    NSAttributedString *attributedSuit = [[NSAttributedString alloc] initWithString:self.suit attributes:@{ NSFontAttributeName : pipFont, NSStrokeColorAttributeName : pipColour, NSUnderlineColorAttributeName : pipColour }];
     CGSize pipSize = [attributedSuit size];
     CGPoint pipOrigin = CGPointMake(
                                     middle.x-pipSize.width/2.0-hoffset*self.bounds.size.width,

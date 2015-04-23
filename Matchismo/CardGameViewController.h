@@ -19,6 +19,8 @@
 @property NSUInteger numberOfCardsInitial;
 
 -(Deck *)createDeck; // concrete class should implement this method
--(UIView *)viewForCard:(Card *)card toDisplayInRect:(CGRect)rect; // return a card to display.
-
+-(UIView *)viewForCard:(Card *)card toDisplayInRect:(CGRect)rect; // return a new card view to display a particular card at a particular location
+-(void)updateCardView:(UIView *)cardView
+             withCard:(Card *)card
+      toDisplayInRect:(CGRect)rectToDisplayCardIn; // update a card (its contents and location)
 @end

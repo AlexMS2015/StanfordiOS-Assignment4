@@ -13,9 +13,9 @@
 
 -(BOOL)doThreeSetCardsMatchWithAttributes:(NSArray *)cardAttributes;
 {
-    int attributeAllEqual = 0;
-    int attributeAllUnequal = 0;
+    int attributeAllEqualOrUnequal = 0;    
     
+    // there are 4 card attribute arrays in card attributes (number, symbol, shading, colour). there are 3 items in each array representing the value of that attribute for each of the 3 cards selected
     for (NSArray *cardAttribute in cardAttributes) {
     
         if ([cardAttribute count] == 3) {
@@ -25,14 +25,14 @@
             BOOL twoAndThree = [cardAttribute[1] isEqualToNumber: cardAttribute[2]];
             
             if (oneAndTwo && oneAndThree && twoAndThree) {
-                attributeAllEqual +=1;
+                attributeAllEqualOrUnequal +=1;
             } else if (!oneAndTwo && !oneAndThree && !twoAndThree) {
-                attributeAllUnequal += 1;
+                attributeAllEqualOrUnequal += 1;
             }
         }
     }
-
-    return (attributeAllEqual == 4 | attributeAllUnequal == 4) ? YES : NO;
+    
+    return (attributeAllEqualOrUnequal == 4) ? YES : NO;
 }
 
 -(int)match:(NSArray *)otherCards
@@ -49,9 +49,9 @@
 
     for (SetCard *card in allCards) {
         [cardNumbers addObject:[NSNumber numberWithInteger:card.number]];
-        [cardNumbers addObject:[NSNumber numberWithInteger:card.symbol]];
-        [cardNumbers addObject:[NSNumber numberWithInteger:card.shading]];
-        [cardNumbers addObject:[NSNumber numberWithInteger:card.colour]];
+        [cardSymbols addObject:[NSNumber numberWithInteger:card.symbol]];
+        [cardShadings addObject:[NSNumber numberWithInteger:card.shading]];
+        [cardColours addObject:[NSNumber numberWithInteger:card.colour]];
     }
     
     NSArray *cardAttributes = @[cardNumbers, cardSymbols, cardShadings, cardColours];
