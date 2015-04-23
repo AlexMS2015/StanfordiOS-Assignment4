@@ -18,10 +18,11 @@
                usingMatchModeNum:(NSUInteger)matchModeNum;
 -(void)chooseCardAtIndex:(NSUInteger)index;
 -(Card *)cardAtIndex:(NSUInteger)index; // because the internal array of cards is not visible we need a method that returns a card at a specific index instead.
+-(void)addCardToGame;
 
 @property (nonatomic, readonly) NSInteger score;
 @property (readonly) NSInteger lastScore; // the amount the total score changed by due to the most recent card selection
 @property (nonatomic, readonly, strong) NSArray *lastCardsChosenToMatch; // the group of cards (2 or 3 or more depending on the game) that were chosen in the last match attempt (i.e. in a 3 card game, this array will contain the 3 cards that were chosen previously, whether they were matched or not).
 @property (nonatomic, readonly, strong) Card *lastCardChosen; // the last single card chosen
-
+@property (nonatomic, readonly) NSInteger numberOfCardsInGame;
 @end

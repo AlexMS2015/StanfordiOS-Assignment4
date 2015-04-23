@@ -17,8 +17,8 @@
 
 @property (nonatomic) NSUInteger numberOfCardsInPlay;
 @property (strong, nonatomic) NSMutableArray *cardButtons; // array to hold the card views
-@property (strong, nonatomic) CardMatchingGame *game; // game model. Subclass should set this.
 @property (strong, nonatomic) Grid *cardDisplayGrid;
+@property (strong, nonatomic) CardMatchingGame *game; // game model
 @end
 
 @implementation CardGameViewController
@@ -59,8 +59,13 @@
 -(void)viewDidLoad
 {
     [super viewDidLoad];
-    
     [self setupNewGame];
+}
+
+-(void)viewDidLayoutSubviews
+{
+    [self drawCardGrid];
+    [self drawUI];
 }
 
 #pragma mark - Abstract Methods
@@ -75,7 +80,7 @@
     return nil; // to be implemented by concrete class
 }
 
--(void)updateCardView:(UIView *)cardView withCard:(Card *)card toDisplayInRect:(CGRect)rectToDisplayCardIn
+-(void)updateCardView:(UIView *)cardView withCard:(Card *)card
 {
     
 }
@@ -88,7 +93,32 @@
                                                    usingDeck:[self createDeck]
                                            usingMatchModeNum:self.numberCardMatchingMode];
     
-    [self drawUI:YES];
+    self.numberOfCardsInPlay = self.numberOfCardsInitial;
+    if ([self.cardButtons count]) {
+        [self makeWayForNewGame];
+    }
+    self.cardButtons = [NSMutableArray array];
+    [self drawCardGrid];
+    //[self drawUI:YES];
+}
+
+#define MAX_NUMBER_CARDS_ALLOWED 24
+-(void)addCardsToGame:(NSUInteger)numCardsToAdd
+{
+    if (self.game.numberOfCardsInGame >= MAX_NUMBER_CARDS_ALLOWED) {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil
+                                                        message:@"Maximum number of cards reached"
+                                                       delegate:self
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        [alert show];
+    } else
+    for (NSUInteger i = 0; i < numCardsToAdd; i++) {
+        [self.game addCardToGame];
+        self.numberOfCardsInPlay++;
+        self.cardDisplayGrid.minimumNumberOfCells++;
+        [self drawUI];
+    }
 }
 
 #pragma mark - Action Methods
@@ -96,6 +126,7 @@
 -(IBAction)newGame:(UIBarButtonItem *)sender
 {
     [self setupNewGame];
+    [self drawUI];
 }
 
 - (IBAction)tapCard:(UITapGestureRecognizer *)sender
@@ -106,12 +137,10 @@
     if (![card isMemberOfClass:[UIView class]]) {
         int chosenButtonIndex = [self.cardButtons indexOfObject:card];
         [self.game chooseCardAtIndex:chosenButtonIndex];
-        if ([self.game cardAtIndex:chosenButtonIndex].isMatched) {
+        if ([self.game cardAtIndex:chosenButtonIndex].isMatched && self.removeMatchCardsFromInterface) {
             self.cardDisplayGrid.minimumNumberOfCells -= self.numberCardMatchingMode;
-            NSLog(@"rows: %d", self.cardDisplayGrid.rowCount);
-            NSLog(@"columns: %d", self.cardDisplayGrid.columnCount);
         }
-        [self drawUI:NO];
+        [self drawUI];
     }
 }
 
@@ -123,7 +152,7 @@
     self.cardDisplayGrid = [[Grid alloc] init];
     self.cardDisplayGrid.size = self.cardDisplayView.bounds.size;
     self.cardDisplayGrid.cellAspectRatio = CARD_ASPECT_RATIO;
-    self.cardDisplayGrid.minimumNumberOfCells = self.numberOfCardsInitial;
+    self.cardDisplayGrid.minimumNumberOfCells = self.numberOfCardsInPlay;
 }
 
 -(CGRect)dealFromSpotRect
@@ -136,19 +165,8 @@
     return rectToDealCardsFrom;
 }
 
--(void)drawUI:(BOOL)isNewGame
+-(void)drawUI
 {
-    if (isNewGame) {
-        self.numberOfCardsInPlay = self.numberOfCardsInitial;
-        
-        if ([self.cardButtons count]) {
-            [self makeWayForNewGame];
-        }
-        self.cardButtons = [NSMutableArray array];
-        
-        [self drawCardGrid];
-    }
-    
     // display the cards in the grid
     int cardIndex = 0;
     for (int i = 0; i < self.cardDisplayGrid.rowCount; i++) {
@@ -156,16 +174,11 @@
     
             if (cardIndex < self.numberOfCardsInPlay) {
                 
-                while ([self.game cardAtIndex:cardIndex].isMatched) {
-                    
-                    // need to somehow flip the latest chosen card over before animating it out!!
-                    
-                    NSLog(@"Card %d is matched", cardIndex + 1);
-                    
-                    [self animateOutCardAtIndex:cardIndex];
-                    cardIndex++;
-                    
-                    // THIS WHOLE THING DOESN'T WORK.. DRAW IT OUT ON PAPER???
+                if (self.removeMatchCardsFromInterface == YES) {
+                    while ([self.game cardAtIndex:cardIndex].isMatched) {
+                        [self animateCardOutAtIndex:cardIndex];
+                        cardIndex++;
+                    }
                 }
                 
                 if (cardIndex >= self.numberOfCardsInPlay) {
@@ -175,17 +188,34 @@
                 Card *cardToDisplay = [self.game cardAtIndex:cardIndex];
                 CGRect rectToDisplayCardIn = [self.cardDisplayGrid frameOfCellAtRow:i inColumn:j];
                 
-                if (isNewGame) {
+                if (cardIndex >= [self.cardButtons count]) {
                     UIView *cardView = [self viewForCard:cardToDisplay toDisplayInRect:[self dealFromSpotRect]];
                     [self.cardDisplayView addSubview:cardView];
                     [self.cardButtons addObject:cardView];
-                    [self dealCard:cardView atIndex:cardIndex toRect:rectToDisplayCardIn];
-                
-                // if the view is already in the grid then just update it... don't get an entirely new view
+                    
+                    int delayFactor;
+                    if (cardIndex < self.numberOfCardsInitial) { // is this an 'added' card or are we laying out one of the original cards in a new game?
+                        delayFactor = cardIndex;
+                    } else {
+                        delayFactor = 0;
+                    }
+                    [self animateCard:cardView withDelayFactor:delayFactor toRect:rectToDisplayCardIn];
+                    
                 } else if ([self.cardDisplayView.subviews containsObject:self.cardButtons[cardIndex]]) {
-                    [self updateCardView:self.cardButtons[cardIndex]
-                                withCard:(Card *)cardToDisplay
-                         toDisplayInRect:rectToDisplayCardIn];
+                    UIView *viewForCurrentCard = (UIView *)self.cardButtons[cardIndex];
+                    
+                    if (cardToDisplay.isMatched) {
+                        NSLog(@"matched");
+                        [self showCardAsMatchedWithView:viewForCurrentCard];
+                    }
+                    
+                    // if a card has moved, we need to animate it moving to new location
+                    if (rectToDisplayCardIn.origin.x != viewForCurrentCard.frame.origin.x || rectToDisplayCardIn.origin.y != viewForCurrentCard.frame.origin.y) {
+                        [self animateCard:viewForCurrentCard
+                          withDelayFactor:0
+                                   toRect:rectToDisplayCardIn];
+                    }
+                    [self updateCardView:viewForCurrentCard withCard:(Card *)cardToDisplay];
                 }
                 cardIndex++;
             }
@@ -197,30 +227,22 @@
 
 #pragma mark - Animations
 
-#define CARD_EXIT_DURATION 1.5
--(void)animateOutCardAtIndex:(int)cardIndex
+-(void)showCardAsMatchedWithView:(UIView *)cardView
 {
-    UIView *viewToAnimate = self.cardButtons[cardIndex];
-    
-    if (viewToAnimate.center.x != -100) { //EVERY SINGLE MATCHED CARD IS RE-ANIMATED... THIS IS A MASSIVE RESOURCE DRAG... DON'T DO THIS
-        
-        CGRect topLeftOffScreen = CGRectMake(-2*viewToAnimate.bounds.size.width, -2*viewToAnimate.bounds.size.height, viewToAnimate.bounds.size.width, viewToAnimate.bounds.size.height);
-        
-        [UIView animateWithDuration:CARD_EXIT_DURATION
-                              delay:0
-                            options:UIViewAnimationOptionCurveEaseOut
-                         animations:^{
-                             viewToAnimate.frame = topLeftOffScreen; }
-                         completion:NULL];
-    }
+    [[UIColor grayColor] setFill];
+    UIRectFill(cardView.bounds);
+}
+
+-(void)animateCardOutAtIndex:(int)index
+{
     
 }
 
-#define CARD_DEAL_DURATION 1.0
--(void)dealCard:(UIView *)cardView atIndex:(float)index toRect:(CGRect)rect
+#define CARD_MOVE_DURATION 0.8
+-(void)animateCard:(UIView *)cardView withDelayFactor:(float)delayFactor toRect:(CGRect)rect
 {
-    [UIView animateWithDuration:CARD_DEAL_DURATION
-                          delay:index * CARD_DEAL_DURATION / 4
+    [UIView animateWithDuration:CARD_MOVE_DURATION
+                          delay:delayFactor * CARD_MOVE_DURATION / 4
                         options:UIViewAnimationOptionCurveEaseIn
                      animations:^{
                          cardView.frame = rect; }
@@ -231,7 +253,7 @@
 {
     //CGRect centerCardRect = CGRectMake(self.view.center.x - self.cardDisplayGrid.cellSize.width/2, self.view.center.y - self.cardDisplayGrid.cellSize.height/2, self.cardDisplayGrid.cellSize.width, self.cardDisplayGrid.cellSize.height);
     
-    CGPoint centerOfCardView = CGPointMake(-self.cardDisplayView.bounds.size.width/2, -self.cardDisplayView.bounds.size.height/2);
+    CGPoint offScreenPoint = CGPointMake(-self.cardDisplayView.bounds.size.width/2, -self.cardDisplayView.bounds.size.height/2);
     
     [self.cardButtons enumerateObjectsUsingBlock:^(UIView *obj, NSUInteger index, BOOL *stop)
      {
@@ -239,58 +261,12 @@
                                delay:0
                              options:UIViewAnimationOptionCurveEaseOut
                           animations:^{
-                              obj.center = centerOfCardView;
+                              obj.center = offScreenPoint;
                               obj.alpha = 0.0;
                           }
                           completion:NULL];
      }];
     
-}
-
-#pragma mark - Junk Code
-
--(void)junkMethod
-{
-    // remove all existing card views
-    /*if (self.cardDisplayView.subviews) {
-     [self.cardDisplayView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop){
-     [obj removeFromSuperview];
-     }];
-     }*/
-    
-    /*
-     int cardIndex = 0;
-     for (int i = 0; i < self.cardDisplayGrid.rowCount; i++) {
-     for (int j = 0; j < self.cardDisplayGrid.columnCount; j++) {
-     
-     if (cardIndex < self.numberOfCardsInitial) {
-     
-     //NSLog(@"Row: %d, Col: %d, Card: %d", i+1, j+1, cardIndex+1);
-     
-     // get the next NON-MATCHED card to display
-     while ([self.game cardAtIndex:cardIndex].isMatched) {
-     [self.cardButtons[cardIndex] removeFromSuperview];
-     cardIndex++;
-     }
-     Card *cardToDisplay = [self.game cardAtIndex:cardIndex];
-     
-     CGRect rectToDisplayCardIn = [self.cardDisplayGrid frameOfCellAtRow:i inColumn:j];
-     UIView *cardView = [self viewForCard:cardToDisplay toDisplayInRect:rectToDisplayCardIn];
-     
-     // replace the view in the cardButtons array with the updated one
-     if (!isNewGame) {
-     [self.cardButtons[cardIndex] removeFromSuperview];
-     }
-     self.cardButtons[cardIndex] = cardView;
-     
-     //if (!cardToDisplay.isMatched)
-     [self.cardDisplayView addSubview:cardView];
-     
-     cardIndex++;
-     }
-     }
-     }
-     */
 }
 
 @end

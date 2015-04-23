@@ -17,10 +17,11 @@
 // the following 2 properties should be set by concrete subclasses in their awakeFromNib: method
 @property NSUInteger numberCardMatchingMode;
 @property NSUInteger numberOfCardsInitial;
+@property BOOL removeMatchCardsFromInterface;
 
+-(void)addCardsToGame:(NSUInteger)numCardsToAdd;
 -(Deck *)createDeck; // concrete class should implement this method
 -(UIView *)viewForCard:(Card *)card toDisplayInRect:(CGRect)rect; // return a new card view to display a particular card at a particular location
 -(void)updateCardView:(UIView *)cardView
-             withCard:(Card *)card
-      toDisplayInRect:(CGRect)rectToDisplayCardIn; // update a card (its contents and location)
+             withCard:(Card *)card; // update a cards contents (e.g. if it has been chosen)
 @end

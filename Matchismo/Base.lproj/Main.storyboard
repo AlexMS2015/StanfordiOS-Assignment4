@@ -17,15 +17,15 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <label appearanceType="aqua" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Score: 0" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4IZ-6a-dRg">
-                                <rect key="frame" x="22" y="405" width="283" height="21"/>
+                            <label appearanceType="aqua" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Score: 0" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4IZ-6a-dRg">
+                                <rect key="frame" x="20" y="411" width="39" height="12"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="10"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <view appearanceType="aqua" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="BsC-WS-Gh4">
-                                <rect key="frame" x="20" y="77" width="280" height="325"/>
+                            <view appearanceType="aqua" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BsC-WS-Gh4">
+                                <rect key="frame" x="20" y="72" width="280" height="331"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" red="0.0" green="0.50196081400000003" blue="0.25098040700000002" alpha="1" colorSpace="calibratedRGB"/>
                                 <gestureRecognizers/>
@@ -35,6 +35,14 @@
                             </view>
                         </subviews>
                         <color key="backgroundColor" red="0.0" green="0.50196081399917603" blue="0.25098040699958801" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstItem="BsC-WS-Gh4" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" constant="20" symbolic="YES" id="6gN-nS-TSl"/>
+                            <constraint firstItem="2fi-mo-0CV" firstAttribute="top" secondItem="4IZ-6a-dRg" secondAttribute="bottom" constant="20" symbolic="YES" id="8n5-C0-cec"/>
+                            <constraint firstItem="4IZ-6a-dRg" firstAttribute="top" secondItem="BsC-WS-Gh4" secondAttribute="bottom" constant="8" symbolic="YES" id="D4f-xi-M2P"/>
+                            <constraint firstItem="4IZ-6a-dRg" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" constant="20" symbolic="YES" id="jyh-1B-WUX"/>
+                            <constraint firstItem="BsC-WS-Gh4" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" constant="20" symbolic="YES" id="s0G-vJ-S2y"/>
+                            <constraint firstAttribute="trailing" secondItem="BsC-WS-Gh4" secondAttribute="trailing" constant="20" symbolic="YES" id="vSl-s0-fgo"/>
+                        </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="PlayingCard" id="B6d-MD-NWf"/>
                     <navigationItem key="navigationItem" title="PlayingCard Game" id="6oC-vM-zyq">
@@ -89,15 +97,15 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <label appearanceType="aqua" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Score: 0" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Lrh-Px-po0">
-                                <rect key="frame" x="20" y="408" width="283" height="21"/>
+                            <label appearanceType="aqua" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Score: 0" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Lrh-Px-po0">
+                                <rect key="frame" x="20" y="411" width="39" height="12"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="10"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <view appearanceType="aqua" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3XN-cf-La9">
-                                <rect key="frame" x="20" y="75" width="280" height="325"/>
+                            <view appearanceType="aqua" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3XN-cf-La9">
+                                <rect key="frame" x="20" y="72" width="280" height="331"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" red="0.0" green="0.50196081400000003" blue="0.25098040700000002" alpha="1" colorSpace="calibratedRGB"/>
                                 <gestureRecognizers/>
@@ -107,12 +115,25 @@
                             </view>
                         </subviews>
                         <color key="backgroundColor" red="0.0" green="0.50196081400000003" blue="0.25098040700000002" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstItem="Lrh-Px-po0" firstAttribute="top" secondItem="3XN-cf-La9" secondAttribute="bottom" constant="8" symbolic="YES" id="1Fe-BI-mu0"/>
+                            <constraint firstAttribute="trailing" secondItem="3XN-cf-La9" secondAttribute="trailing" constant="20" symbolic="YES" id="APa-DJ-quI"/>
+                            <constraint firstItem="mGT-OC-6K5" firstAttribute="top" secondItem="Lrh-Px-po0" secondAttribute="bottom" constant="20" symbolic="YES" id="QAZ-bY-zhw"/>
+                            <constraint firstItem="3XN-cf-La9" firstAttribute="leading" secondItem="RZg-DY-LWf" secondAttribute="leading" constant="20" symbolic="YES" id="SmK-i6-TqJ"/>
+                            <constraint firstItem="Lrh-Px-po0" firstAttribute="leading" secondItem="RZg-DY-LWf" secondAttribute="leading" constant="20" symbolic="YES" id="mLj-ba-vUK"/>
+                            <constraint firstItem="3XN-cf-La9" firstAttribute="top" secondItem="EmD-dj-eg0" secondAttribute="bottom" constant="20" symbolic="YES" id="sW5-yt-ow5"/>
+                        </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="Set Game" id="wdc-iU-Ka3"/>
                     <navigationItem key="navigationItem" title="Set Game" id="DxO-rw-yAL">
                         <barButtonItem key="leftBarButtonItem" title="Redeal" id="7F5-Ji-346">
                             <connections>
                                 <action selector="newGame:" destination="Boy-G3-8Gs" id="VwX-Wn-07j"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" title="+ Cards" id="KUb-PQ-SKr">
+                            <connections>
+                                <action selector="addMoreCards:" destination="Boy-G3-8Gs" id="XBF-lS-uNF"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>

@@ -17,6 +17,7 @@
 {    
     self.numberCardMatchingMode = 3;
     self.numberOfCardsInitial = 12;
+    self.removeMatchCardsFromInterface = YES;
 }
 
 -(Deck *)createDeck
@@ -38,14 +39,12 @@
     }
 }
 
--(void)updateCardView:(UIView *)cardView withCard:(Card *)card toDisplayInRect:(CGRect)rectToDisplayCardIn
+-(void)updateCardView:(UIView *)cardView withCard:(Card *)card
 {
     if ([cardView isMemberOfClass:[SetCardView class]] && [card isMemberOfClass:[SetCard class]]) {
         SetCardView *setCardView = (SetCardView *)cardView;
         SetCard *setCard = (SetCard *)card;
-        
         [self setAttributesOfCardView:setCardView withCard:setCard];
-        setCardView.frame = rectToDisplayCardIn;
     }
 }
 
@@ -72,4 +71,10 @@
     
     setCardview.chosen = setCard.isChosen;
 }
+
+- (IBAction)addMoreCards:(UIBarButtonItem *)sender
+{
+    [self addCardsToGame:3];
+}
+
 @end

@@ -18,6 +18,7 @@
 {    
     self.numberCardMatchingMode = 2;
     self.numberOfCardsInitial = 24;
+    self.removeMatchCardsFromInterface = NO;
 }
 
 -(Deck *)createDeck
@@ -41,7 +42,7 @@
     }
 }
 
--(void)updateCardView:(UIView *)cardView withCard:(Card *)card toDisplayInRect:(CGRect)rectToDisplayCardIn
+-(void)updateCardView:(UIView *)cardView withCard:(Card *)card
 {
     if ([cardView isMemberOfClass:[PlayingCardView class]] && [card isMemberOfClass:[PlayingCard class]]) {
         
@@ -49,7 +50,6 @@
 
         
         PlayingCardView *playingCardViewToUpdate = (PlayingCardView *)cardView;
-        playingCardViewToUpdate.frame = rectToDisplayCardIn;
 
         //PlayingCardView *playingCardViewNew = [[PlayingCardView alloc] initWithFrame:rectToDisplayCardIn];
         playingCardViewToUpdate.rank = playingCard.rank;

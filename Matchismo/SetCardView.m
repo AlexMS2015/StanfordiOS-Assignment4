@@ -15,7 +15,7 @@
     return @[[UIColor greenColor], [UIColor redColor], [UIColor purpleColor]][index];
 }
 
-#define CORNER_RADIUS 5.0
+#define CORNER_RADIUS 10.0
 
 -(void)drawRect:(CGRect)rect
 {

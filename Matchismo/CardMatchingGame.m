@@ -18,7 +18,7 @@
 @property (readwrite) NSInteger lastScore;
 @property (nonatomic, readwrite, strong) NSArray *lastCardsChosenToMatch;
 @property (nonatomic, readwrite, strong) Card *lastCardChosen; // the last single card chosen
-
+@property (nonatomic, strong) Deck *initialDeck; // hold onto the initial deck so more cards can be added at a later stage if needed
 @end
 
 @implementation CardMatchingGame
@@ -41,6 +41,11 @@
     return _cards;
 }
 
+-(NSInteger)numberOfCardsInGame
+{
+    return [self.cards count];
+}
+
 -(instancetype)initWithCardCount:(NSUInteger)count
                        usingDeck:(Deck *)deck
                usingMatchModeNum:(NSUInteger)matchModeNum
@@ -49,20 +54,28 @@
     
     if (self) { // check for failure return of nil from the super init
         // cycle through all the cards in the passed in Deck (by drawing them randomly one at a time) and add them to our internal data structure (an array of Card objects)
+        self.initialDeck = deck;
         for (int i = 0; i < count; i++) {
-            Card *card = [deck drawRandomCard];
+            Card *card = [self.initialDeck drawRandomCard];
             if (card) {
                 [self.cards addObject:card];
             } else { // adding nil to an array will crash the program so we should check for this (in case someone passed in bad arguments)
                 return nil;
                 break;
             }
-            
             self.numCardMatching = matchModeNum;
         }
     }
     
     return self;
+}
+
+-(void)addCardToGame
+{
+    Card *card = [self.initialDeck drawRandomCard];
+    if (card) {
+        [self.cards addObject:card];
+    }
 }
 
 -(Card *)cardAtIndex:(NSUInteger)index
