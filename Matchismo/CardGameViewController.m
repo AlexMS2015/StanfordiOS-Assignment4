@@ -9,8 +9,9 @@
 #import "CardGameViewController.h"
 #import "CardMatchingGame.h"
 #import "Grid.h"
+#import "SetCardView.h"
 
-@interface CardGameViewController ()
+@interface CardGameViewController () <UIDynamicAnimatorDelegate>
 // interface elements
 @property (weak, nonatomic) IBOutlet UILabel *scoreLabel;
 @property (weak, nonatomic) IBOutlet UIView *cardDisplayView;
@@ -19,6 +20,7 @@
 @property (strong, nonatomic) NSMutableArray *cardButtons; // array to hold the card views
 @property (strong, nonatomic) Grid *cardDisplayGrid;
 @property (strong, nonatomic) CardMatchingGame *game; // game model
+@property (strong, nonatomic) UIDynamicAnimator *animator;
 @end
 
 @implementation CardGameViewController
@@ -56,18 +58,14 @@
 
 #pragma mark - View Life Cycle
 
--(void)panCards:(UIGestureRecognizer *)gesture
-{
-    NSLog(@"pinched");
-}
-
 -(void)viewDidLoad
 {
     [super viewDidLoad];
     
-    UIPinchGestureRecognizer *pinchGesture = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(panCards:)];
-    [self.view addGestureRecognizer:pinchGesture];
+    self.cardDisplayView.contentMode = UIViewContentModeScaleAspectFill;
     
+    UIPinchGestureRecognizer *pinchGesture = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(pinchCards:)];
+    [self.view addGestureRecognizer:pinchGesture];
     
     [self setupNewGame];
 }
@@ -161,13 +159,18 @@
 
 - (IBAction)tapCard:(UITapGestureRecognizer *)sender
 {
-    CGPoint touchPoint = [sender locationInView:self.cardDisplayView];
-    
-    UIView *card = [self.cardDisplayView hitTest:touchPoint withEvent:nil];
-    if (![card isMemberOfClass:[UIView class]]) {
-        int chosenButtonIndex = [self.cardButtons indexOfObject:card];
-        [self.game chooseCardAtIndex:chosenButtonIndex];
+    if (self.animator) {
+        self.animator = nil;
         [self drawUI];
+    } else {
+        CGPoint touchPoint = [sender locationInView:self.cardDisplayView];
+        
+        UIView *card = [self.cardDisplayView hitTest:touchPoint withEvent:nil];
+        if (![card isMemberOfClass:[UIView class]]) {
+            int chosenButtonIndex = [self.cardButtons indexOfObject:card];
+            [self.game chooseCardAtIndex:chosenButtonIndex];
+            [self drawUI];
+        }
     }
 }
 
@@ -191,6 +194,9 @@
     
     return rectToDealCardsFrom;
 }
+
+#define DEAL_NEWCARD_MOVE_DURATION 0.8
+#define MOVE_EXISTING_CARD_DURATION 0.5
 
 -(void)drawUI
 {
@@ -217,8 +223,6 @@
                 Card *cardToDisplay = [self.game cardAtIndex:cardIndex];
                 CGRect rectToDisplayCardIn = [self.cardDisplayGrid frameOfCellAtRow:i inColumn:j];
                 
-                //NSLog(@"x = %f, y = %f, w = %f, h = %f", rectToDisplayCardIn.origin.x, rectToDisplayCardIn.origin.y, rectToDisplayCardIn.size.width, rectToDisplayCardIn.size.height);
-                
                 if (cardIndex >= [self.cardButtons count]) {
                     UIView *cardView = [self viewForCard:cardToDisplay toDisplayInRect:[self dealFromSpotRect]];
                     [self.cardDisplayView addSubview:cardView];
@@ -230,7 +234,10 @@
                     } else {
                         delayFactor = 0;
                     }
-                    [self animateCard:cardView withDelayFactor:delayFactor toRect:rectToDisplayCardIn];
+                    [self animateCard:cardView
+                      withDelayFactor:delayFactor
+                          andDuration:DEAL_NEWCARD_MOVE_DURATION
+                               toRect:rectToDisplayCardIn];
                     
                 } else if ([self.cardDisplayView.subviews containsObject:self.cardButtons[cardIndex]]) {
                     
@@ -243,12 +250,9 @@
 
                     // if a card has moved, we need to animate it moving to new location
                     if (!CGRectEqualToRect(rectToDisplayCardIn, viewForCurrentCard.frame) ) {
-                        /*NSLog(@"animating moving card");
-                        NSLog(@"%f, %f", rectToDisplayCardIn.origin.x, viewForCurrentCard.frame.origin.x);
-                        NSLog(@"%f, %f", rectToDisplayCardIn.origin.y, viewForCurrentCard.frame.origin.y);
-                        NSLog(@"end animation");*/
                         [self animateCard:viewForCurrentCard
-                          withDelayFactor:0
+                          withDelayFactor:0.0
+                              andDuration:MOVE_EXISTING_CARD_DURATION
                                    toRect:rectToDisplayCardIn];
                     }
                     [self updateCardView:viewForCurrentCard withCard:(Card *)cardToDisplay];
@@ -288,11 +292,13 @@
     }
 }
 
-#define CARD_MOVE_DURATION 0.8
--(void)animateCard:(UIView *)cardView withDelayFactor:(float)delayFactor toRect:(CGRect)rect
+-(void)animateCard:(UIView *)cardView
+   withDelayFactor:(float)delayFactor
+       andDuration:(float)duration
+            toRect:(CGRect)rect
 {
-    [UIView animateWithDuration:CARD_MOVE_DURATION
-                          delay:delayFactor * CARD_MOVE_DURATION / 4
+    [UIView animateWithDuration:duration
+                          delay:delayFactor * duration / 4
                         options:UIViewAnimationOptionCurveEaseIn
                      animations:^{
                          cardView.frame = rect; }
@@ -301,8 +307,6 @@
 
 -(void)makeWayForNewGame
 {
-    //CGRect centerCardRect = CGRectMake(self.view.center.x - self.cardDisplayGrid.cellSize.width/2, self.view.center.y - self.cardDisplayGrid.cellSize.height/2, self.cardDisplayGrid.cellSize.width, self.cardDisplayGrid.cellSize.height);
-    
     CGPoint offScreenPoint = CGPointMake(-self.cardDisplayView.bounds.size.width/2, -self.cardDisplayView.bounds.size.height/2);
     
     [self.cardButtons enumerateObjectsUsingBlock:^(UIView *obj, NSUInteger index, BOOL *stop)
@@ -317,6 +321,31 @@
                           completion:NULL];
      }];
     
+}
+
+-(void)pinchCards:(UIPinchGestureRecognizer *)gesture
+{
+    
+    if (gesture.state == UIGestureRecognizerStateChanged) {
+        
+        float scaleFactor = 0.8;//gesture.scale;
+        
+        self.cardDisplayView.bounds = CGRectInset(self.cardDisplayView.bounds, self.cardDisplayView.bounds.size.width * (1 - scaleFactor), self.cardDisplayView.bounds.size.height * (1 - scaleFactor));
+
+        NSLog(@"scale: %f", gesture.scale);
+        gesture.scale = 1.0;
+    } else if (gesture.state == UIGestureRecognizerStateEnded) {
+    
+        self.animator = [[UIDynamicAnimator alloc] initWithReferenceView:self.cardDisplayView];
+        self.animator.delegate = self;
+        
+        CGPoint centerPoint = CGPointMake(self.cardDisplayView.bounds.size.width/2.0, self.cardDisplayView.bounds.size.height/2.0);
+        
+        [self.cardDisplayView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop){
+            UISnapBehavior *snapToCentre = [[UISnapBehavior alloc] initWithItem:obj snapToPoint:centerPoint];
+            [self.animator addBehavior:snapToCentre];
+        }];
+    }
 }
 
 @end

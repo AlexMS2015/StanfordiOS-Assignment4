@@ -67,7 +67,6 @@
         }
         self.numCardMatching = matchModeNum;
         self.numberOfNonMatchedCardsInGamePrivate = [self.cards count];
-        NSLog(@"%d cards in play", self.numberOfNonMatchedCardsInGamePrivate);
     }
     
     return self;
