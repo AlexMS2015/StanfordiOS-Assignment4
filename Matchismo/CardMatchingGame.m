@@ -13,6 +13,7 @@
 @property (nonatomic, readwrite) NSInteger score; // we redeclare this property to be readwrite privately (i.e. only in the implementation)
 @property (nonatomic, strong) NSMutableArray *cards; // of card
 @property NSUInteger numCardMatching; // = 2 for 2 card matching game (default)
+@property NSUInteger numberOfNonMatchedCardsInGamePrivate;
 
 // private readwrite implementation of public properties
 @property (readwrite) NSInteger lastScore;
@@ -41,9 +42,9 @@
     return _cards;
 }
 
--(NSInteger)numberOfCardsInGame
+-(NSInteger)numberOfNonMatchedCardsInGame
 {
-    return [self.cards count];
+    return self.numberOfNonMatchedCardsInGamePrivate;
 }
 
 -(instancetype)initWithCardCount:(NSUInteger)count
@@ -63,8 +64,10 @@
                 return nil;
                 break;
             }
-            self.numCardMatching = matchModeNum;
         }
+        self.numCardMatching = matchModeNum;
+        self.numberOfNonMatchedCardsInGamePrivate = [self.cards count];
+        NSLog(@"%d cards in play", self.numberOfNonMatchedCardsInGamePrivate);
     }
     
     return self;
@@ -75,6 +78,7 @@
     Card *card = [self.initialDeck drawRandomCard];
     if (card) {
         [self.cards addObject:card];
+        self.numberOfNonMatchedCardsInGamePrivate++;
     }
 }
 
@@ -122,6 +126,7 @@ static const int COST_TO_CHOOSE = 1;
                     
                     for (Card *currentCard in allChosenCards) {
                         currentCard.matched = YES;
+                        self.numberOfNonMatchedCardsInGamePrivate--;
                     }
                     
                 } else {
@@ -137,4 +142,5 @@ static const int COST_TO_CHOOSE = 1;
         }
     }
 }
+
 @end

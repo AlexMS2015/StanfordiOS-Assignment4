@@ -99,13 +99,21 @@
     }
     self.cardButtons = [NSMutableArray array];
     [self drawCardGrid];
-    //[self drawUI:YES];
 }
 
-#define MAX_NUMBER_CARDS_ALLOWED 24
+-(void)updateNumCellsInGrid
+{
+    if (self.removeMatchCardsFromInterface) {
+        self.cardDisplayGrid.minimumNumberOfCells = self.game.numberOfNonMatchedCardsInGame;
+    } else {
+        self.cardDisplayGrid.minimumNumberOfCells = self.numberOfCardsInPlay;
+    }
+}
+
+#define MAX_NUMBER_CARDS_ALLOWED_ONSCREEN 24
 -(void)addCardsToGame:(NSUInteger)numCardsToAdd
 {
-    if (self.game.numberOfCardsInGame >= MAX_NUMBER_CARDS_ALLOWED) {
+    if (self.game.numberOfNonMatchedCardsInGame >= MAX_NUMBER_CARDS_ALLOWED_ONSCREEN) {
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil
                                                         message:@"Maximum number of cards reached"
                                                        delegate:self
@@ -113,12 +121,12 @@
                                               otherButtonTitles:nil];
         [alert show];
     } else
-    for (NSUInteger i = 0; i < numCardsToAdd; i++) {
-        [self.game addCardToGame];
-        self.numberOfCardsInPlay++;
-        self.cardDisplayGrid.minimumNumberOfCells++;
-        [self drawUI];
-    }
+        for (NSUInteger i = 0; i < numCardsToAdd; i++) {
+            [self.game addCardToGame];
+            self.numberOfCardsInPlay++;
+            self.cardDisplayGrid.minimumNumberOfCells++;
+            [self drawUI];
+        }
 }
 
 #pragma mark - Action Methods
@@ -137,9 +145,9 @@
     if (![card isMemberOfClass:[UIView class]]) {
         int chosenButtonIndex = [self.cardButtons indexOfObject:card];
         [self.game chooseCardAtIndex:chosenButtonIndex];
-        if ([self.game cardAtIndex:chosenButtonIndex].isMatched && self.removeMatchCardsFromInterface) {
+        /*if ([self.game cardAtIndex:chosenButtonIndex].isMatched && self.removeMatchCardsFromInterface) {
             self.cardDisplayGrid.minimumNumberOfCells -= self.numberCardMatchingMode;
-        }
+        }*/
         [self drawUI];
     }
 }
@@ -176,7 +184,7 @@
                 
                 if (self.removeMatchCardsFromInterface == YES) {
                     while ([self.game cardAtIndex:cardIndex].isMatched) {
-                        [self animateCardOutAtIndex:cardIndex];
+                        [self animateOutCardAtIndex:cardIndex];
                         cardIndex++;
                     }
                 }
@@ -233,9 +241,22 @@
     UIRectFill(cardView.bounds);
 }
 
--(void)animateCardOutAtIndex:(int)index
+#define CARD_EXIT_DURATION 1.5
+-(void)animateOutCardAtIndex:(int)cardIndex
 {
+        UIView *viewToAnimate = self.cardButtons[cardIndex];
     
+        if (viewToAnimate.center.x != -100) { //EVERY SINGLE MATCHED CARD IS RE-ANIMATED... THIS IS A MASSIVE RESOURCE DRAG... DON'T DO THIS
+        
+            CGRect topLeftOffScreen = CGRectMake(-2*viewToAnimate.bounds.size.width, -2*viewToAnimate.bounds.size.height, viewToAnimate.bounds.size.width, viewToAnimate.bounds.size.height);
+        
+            [UIView animateWithDuration:CARD_EXIT_DURATION
+                                  delay:0
+                                options:UIViewAnimationOptionCurveEaseOut
+                             animations:^{
+                                    viewToAnimate.frame = topLeftOffScreen; }
+                             completion:NULL];
+        }
 }
 
 #define CARD_MOVE_DURATION 0.8
