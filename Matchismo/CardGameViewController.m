@@ -56,9 +56,19 @@
 
 #pragma mark - View Life Cycle
 
+-(void)panCards:(UIGestureRecognizer *)gesture
+{
+    NSLog(@"pinched");
+}
+
 -(void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    UIPinchGestureRecognizer *pinchGesture = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(panCards:)];
+    [self.view addGestureRecognizer:pinchGesture];
+    
+    
     [self setupNewGame];
 }
 
@@ -110,7 +120,7 @@
     }
 }
 
-#define MAX_NUMBER_CARDS_ALLOWED_ONSCREEN 24
+#define MAX_NUMBER_CARDS_ALLOWED_ONSCREEN 90
 -(void)addCardsToGame:(NSUInteger)numCardsToAdd
 {
     if (self.game.numberOfNonMatchedCardsInGame >= MAX_NUMBER_CARDS_ALLOWED_ONSCREEN) {
@@ -120,13 +130,25 @@
                                               cancelButtonTitle:@"OK"
                                               otherButtonTitles:nil];
         [alert show];
-    } else
+    } else {
+        int oldNumCards = self.game.numberOfNonMatchedCardsInGame;
         for (NSUInteger i = 0; i < numCardsToAdd; i++) {
             [self.game addCardToGame];
-            self.numberOfCardsInPlay++;
-            self.cardDisplayGrid.minimumNumberOfCells++;
-            [self drawUI];
+            if (oldNumCards == self.game.numberOfNonMatchedCardsInGame) { // deck is empty!
+                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil
+                                                                message:@"No more cards in deck"
+                                                               delegate:self
+                                                      cancelButtonTitle:@"OK"
+                                                      otherButtonTitles:nil];
+                [alert show];
+                break;
+            } else {
+                self.numberOfCardsInPlay++;
+            }
         }
+        [self drawUI];
+    }
+
 }
 
 #pragma mark - Action Methods
@@ -145,9 +167,6 @@
     if (![card isMemberOfClass:[UIView class]]) {
         int chosenButtonIndex = [self.cardButtons indexOfObject:card];
         [self.game chooseCardAtIndex:chosenButtonIndex];
-        /*if ([self.game cardAtIndex:chosenButtonIndex].isMatched && self.removeMatchCardsFromInterface) {
-            self.cardDisplayGrid.minimumNumberOfCells -= self.numberCardMatchingMode;
-        }*/
         [self drawUI];
     }
 }
@@ -175,6 +194,8 @@
 
 -(void)drawUI
 {
+    [self updateNumCellsInGrid];
+    
     // display the cards in the grid
     int cardIndex = 0;
     for (int i = 0; i < self.cardDisplayGrid.rowCount; i++) {
@@ -196,6 +217,8 @@
                 Card *cardToDisplay = [self.game cardAtIndex:cardIndex];
                 CGRect rectToDisplayCardIn = [self.cardDisplayGrid frameOfCellAtRow:i inColumn:j];
                 
+                //NSLog(@"x = %f, y = %f, w = %f, h = %f", rectToDisplayCardIn.origin.x, rectToDisplayCardIn.origin.y, rectToDisplayCardIn.size.width, rectToDisplayCardIn.size.height);
+                
                 if (cardIndex >= [self.cardButtons count]) {
                     UIView *cardView = [self viewForCard:cardToDisplay toDisplayInRect:[self dealFromSpotRect]];
                     [self.cardDisplayView addSubview:cardView];
@@ -210,15 +233,20 @@
                     [self animateCard:cardView withDelayFactor:delayFactor toRect:rectToDisplayCardIn];
                     
                 } else if ([self.cardDisplayView.subviews containsObject:self.cardButtons[cardIndex]]) {
+                    
                     UIView *viewForCurrentCard = (UIView *)self.cardButtons[cardIndex];
                     
                     if (cardToDisplay.isMatched) {
                         NSLog(@"matched");
                         [self showCardAsMatchedWithView:viewForCurrentCard];
                     }
-                    
+
                     // if a card has moved, we need to animate it moving to new location
-                    if (rectToDisplayCardIn.origin.x != viewForCurrentCard.frame.origin.x || rectToDisplayCardIn.origin.y != viewForCurrentCard.frame.origin.y) {
+                    if (!CGRectEqualToRect(rectToDisplayCardIn, viewForCurrentCard.frame) ) {
+                        /*NSLog(@"animating moving card");
+                        NSLog(@"%f, %f", rectToDisplayCardIn.origin.x, viewForCurrentCard.frame.origin.x);
+                        NSLog(@"%f, %f", rectToDisplayCardIn.origin.y, viewForCurrentCard.frame.origin.y);
+                        NSLog(@"end animation");*/
                         [self animateCard:viewForCurrentCard
                           withDelayFactor:0
                                    toRect:rectToDisplayCardIn];
@@ -244,19 +272,20 @@
 #define CARD_EXIT_DURATION 1.5
 -(void)animateOutCardAtIndex:(int)cardIndex
 {
-        UIView *viewToAnimate = self.cardButtons[cardIndex];
+    UIView *viewToAnimate = self.cardButtons[cardIndex];
     
-        if (viewToAnimate.center.x != -100) { //EVERY SINGLE MATCHED CARD IS RE-ANIMATED... THIS IS A MASSIVE RESOURCE DRAG... DON'T DO THIS
-        
-            CGRect topLeftOffScreen = CGRectMake(-2*viewToAnimate.bounds.size.width, -2*viewToAnimate.bounds.size.height, viewToAnimate.bounds.size.width, viewToAnimate.bounds.size.height);
-        
-            [UIView animateWithDuration:CARD_EXIT_DURATION
-                                  delay:0
-                                options:UIViewAnimationOptionCurveEaseOut
-                             animations:^{
-                                    viewToAnimate.frame = topLeftOffScreen; }
-                             completion:NULL];
-        }
+    CGRect topLeftOffScreen = CGRectMake(-2*viewToAnimate.bounds.size.width, -2*viewToAnimate.bounds.size.height, viewToAnimate.bounds.size.width, viewToAnimate.bounds.size.height);
+    
+    if (!CGRectEqualToRect(topLeftOffScreen, viewToAnimate.frame)) {
+        [UIView animateWithDuration:CARD_EXIT_DURATION
+                              delay:0
+                            options:UIViewAnimationOptionCurveEaseOut
+                         animations:^{
+                             viewToAnimate.frame = topLeftOffScreen; }
+                         completion:^(BOOL finished){
+                             [viewToAnimate removeFromSuperview];
+                         }];
+    }
 }
 
 #define CARD_MOVE_DURATION 0.8

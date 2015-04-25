@@ -41,10 +41,12 @@
 
 -(void)updateCardView:(UIView *)cardView withCard:(Card *)card
 {
-    if ([cardView isMemberOfClass:[SetCardView class]] && [card isMemberOfClass:[SetCard class]]) {
-        SetCardView *setCardView = (SetCardView *)cardView;
-        SetCard *setCard = (SetCard *)card;
-        [self setAttributesOfCardView:setCardView withCard:setCard];
+    if (!card.isMatched) {
+        if ([cardView isMemberOfClass:[SetCardView class]] && [card isMemberOfClass:[SetCard class]]) {
+            SetCardView *setCardView = (SetCardView *)cardView;
+            SetCard *setCard = (SetCard *)card;
+            [self setAttributesOfCardView:setCardView withCard:setCard];
+        }
     }
 }
 

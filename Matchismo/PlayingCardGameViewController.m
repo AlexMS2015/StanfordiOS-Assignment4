@@ -30,8 +30,8 @@
 {
     if ([card isMemberOfClass:[PlayingCard class]]) {
         PlayingCard *playingCard = (PlayingCard *)card;
-        
         PlayingCardView *cardToDisplay = [[PlayingCardView alloc] initWithFrame:rect];
+        
         cardToDisplay.rank = playingCard.rank;
         cardToDisplay.suit = playingCard.suit;
         cardToDisplay.faceUp = playingCard.isChosen;
@@ -44,39 +44,38 @@
 
 -(void)updateCardView:(UIView *)cardView withCard:(Card *)card
 {
-    if ([cardView isMemberOfClass:[PlayingCardView class]] && [card isMemberOfClass:[PlayingCard class]]) {
-        
-        PlayingCard *playingCard = (PlayingCard *)card;
-
-        
-        PlayingCardView *playingCardViewToUpdate = (PlayingCardView *)cardView;
-
-        //PlayingCardView *playingCardViewNew = [[PlayingCardView alloc] initWithFrame:rectToDisplayCardIn];
-        playingCardViewToUpdate.rank = playingCard.rank;
-        playingCardViewToUpdate.suit = playingCard.suit;
-        playingCardViewToUpdate.faceUp = playingCard.isChosen;
-    }
-}
-        /*
-        UIView *container = [[UIView alloc] initWithFrame:rectToDisplayCardIn];
-        [self.cardDisplayView addSubview:container];
-        [playingCardViewToUpdate removeFromSuperview];
-        [playingCardViewNew removeFromSuperview];
-        [container addSubview:playingCardViewToUpdate];
-        [container addSubview:playingCardViewNew];
-        
-        [self animateCardFlipFrom:playingCardViewToUpdate to:playingCardViewNew];
+    if (!card.isMatched) {
+        if ([cardView isMemberOfClass:[PlayingCardView class]] && [card isMemberOfClass:[PlayingCard class]]) {
+            
+            PlayingCard *playingCard = (PlayingCard *)card;
+            PlayingCardView *playingCardViewToUpdate = (PlayingCardView *)cardView;
+            
+            if (playingCardViewToUpdate.faceUp != playingCard.isChosen) {
+                [self flipCardView:playingCardViewToUpdate withCard:playingCard];
+            } else {
+                playingCardViewToUpdate.rank = playingCard.rank;
+                playingCardViewToUpdate.suit = playingCard.suit;
+                playingCardViewToUpdate.faceUp = playingCard.isChosen;
+            }
+            
+        }
     }
 }
 
--(void)animateCardFlipFrom:(PlayingCardView *)playingCardViewToUpdate to:(PlayingCardView *)playingCardViewNew
+-(void)flipCardView:(PlayingCardView *)playingCardViewToUpdate withCard:(PlayingCard *)playingCard;
 {
+    playingCardViewToUpdate.rank = playingCard.rank;
+    playingCardViewToUpdate.suit = playingCard.suit;
     
-    [UIView transitionFromView:playingCardViewToUpdate
-                        toView:playingCardViewNew
-                      duration:3.0
+    [UIView transitionWithView:playingCardViewToUpdate
+                      duration:0.5
                        options:UIViewAnimationOptionTransitionFlipFromLeft
-                    completion:NULL];
-}*/
+                    animations:^{
+                    
+                    playingCardViewToUpdate.faceUp = playingCard.isChosen;
+
+                    }
+                    completion:nil];
+}
 
 @end
