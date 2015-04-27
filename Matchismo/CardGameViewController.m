@@ -21,6 +21,8 @@
 @property (strong, nonatomic) Grid *cardDisplayGrid;
 @property (strong, nonatomic) CardMatchingGame *game; // game model
 @property (strong, nonatomic) UIDynamicAnimator *animator;
+@property (strong, nonatomic) UIView *testView;
+@property (strong, nonatomic) UIAttachmentBehavior *attachment;
 @end
 
 @implementation CardGameViewController
@@ -58,11 +60,10 @@
 
 #pragma mark - View Life Cycle
 
+#define DEFAULT_SCALE_FACTOR 1.0
 -(void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    self.cardDisplayView.contentMode = UIViewContentModeScaleAspectFill;
     
     UIPinchGestureRecognizer *pinchGesture = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(pinchCards:)];
     [self.view addGestureRecognizer:pinchGesture];
@@ -118,7 +119,7 @@
     }
 }
 
-#define MAX_NUMBER_CARDS_ALLOWED_ONSCREEN 90
+#define MAX_NUMBER_CARDS_ALLOWED_ONSCREEN 24
 -(void)addCardsToGame:(NSUInteger)numCardsToAdd
 {
     if (self.game.numberOfNonMatchedCardsInGame >= MAX_NUMBER_CARDS_ALLOWED_ONSCREEN) {
@@ -161,6 +162,13 @@
 {
     if (self.animator) {
         self.animator = nil;
+        
+        /*self.cardDisplayViewScaleFactor = 1 / self.cardDisplayViewScaleFactor;
+        
+        self.cardDisplayView.frame = CGRectInset(self.cardDisplayView.frame, self.cardDisplayView.frame.size.width * (1 - self.cardDisplayViewScaleFactor), self.cardDisplayView.frame.size.height * (1 - self.cardDisplayViewScaleFactor));*/
+        
+        //self.cardDisplayView.frame.size = self.cardDisplayGrid.size;
+        
         [self drawUI];
     } else {
         CGPoint touchPoint = [sender locationInView:self.cardDisplayView];
@@ -191,7 +199,7 @@
                                                                inColumn:self.cardDisplayGrid.columnCount];
     rectToDealCardsFrom.origin.x += self.cardDisplayGrid.size.width;
     rectToDealCardsFrom.origin.y += self.cardDisplayGrid.size.height;
-    
+
     return rectToDealCardsFrom;
 }
 
@@ -225,6 +233,9 @@
                 
                 if (cardIndex >= [self.cardButtons count]) {
                     UIView *cardView = [self viewForCard:cardToDisplay toDisplayInRect:[self dealFromSpotRect]];
+                    
+                    cardView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin; // so the card view can move when we use the pinch gesture to resize the view
+                    
                     [self.cardDisplayView addSubview:cardView];
                     [self.cardButtons addObject:cardView];
                     
@@ -325,15 +336,18 @@
 
 -(void)pinchCards:(UIPinchGestureRecognizer *)gesture
 {
-    
     if (gesture.state == UIGestureRecognizerStateChanged) {
         
-        float scaleFactor = 0.8;//gesture.scale;
+        CGPoint centerPoint = CGPointMake(self.cardDisplayView.bounds.size.width/2.0, self.cardDisplayView.bounds.size.height/2.0);
         
-        self.cardDisplayView.bounds = CGRectInset(self.cardDisplayView.bounds, self.cardDisplayView.bounds.size.width * (1 - scaleFactor), self.cardDisplayView.bounds.size.height * (1 - scaleFactor));
-
-        NSLog(@"scale: %f", gesture.scale);
+        for (UIView *cardView in self.cardDisplayView.subviews) {
+            CGPoint centerNew = cardView.center;
+            centerNew.x += (1 - gesture.scale) * (centerPoint.x - cardView.center.x);
+            centerNew.y += (1 - gesture.scale) * (centerPoint.y - cardView.center.y);
+            cardView.center = centerNew;
+        }
         gesture.scale = 1.0;
+        
     } else if (gesture.state == UIGestureRecognizerStateEnded) {
     
         self.animator = [[UIDynamicAnimator alloc] initWithReferenceView:self.cardDisplayView];
@@ -345,6 +359,39 @@
             UISnapBehavior *snapToCentre = [[UISnapBehavior alloc] initWithItem:obj snapToPoint:centerPoint];
             [self.animator addBehavior:snapToCentre];
         }];
+        
+        UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panCards:)];
+        [self.view addGestureRecognizer:panGesture];
+    }
+}
+
+-(void)panCards:(UIPanGestureRecognizer *)pan
+{
+    
+    CGPoint anchorPoint = [pan locationInView:self.cardDisplayView];
+    
+    if (pan.state == UIGestureRecognizerStateBegan) {
+        [self.animator removeAllBehaviors];
+        self.testView = [[UIView alloc] initWithFrame:[self.cardDisplayGrid frameOfCellAtRow:0 inColumn:0]];
+        self.testView.backgroundColor = [UIColor blackColor];
+        [self.cardDisplayView addSubview:self.testView];
+        
+        self.attachment = [[UIAttachmentBehavior alloc] initWithItem:self.testView attachedToAnchor:[pan locationInView:self.cardDisplayView]];
+        self.attachment.damping = 0.1;
+        [self.animator addBehavior:self.attachment];
+        
+        UICollisionBehavior *collision = [[UICollisionBehavior alloc] init];
+        collision.translatesReferenceBoundsIntoBoundary = YES;
+        [collision addItem:self.testView];
+        [self.animator addBehavior:collision];
+
+        
+    } else if (pan.state == UIGestureRecognizerStateChanged) {
+        
+        self.attachment.anchorPoint = anchorPoint;
+        NSLog(@"panning %f %f", anchorPoint.x, anchorPoint.y);
+        
+
     }
 }
 
