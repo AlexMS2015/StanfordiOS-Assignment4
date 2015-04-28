@@ -361,7 +361,7 @@
         }];
         
         UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panCards:)];
-        [self.view addGestureRecognizer:panGesture];
+        [self.cardDisplayView addGestureRecognizer:panGesture];
     }
 }
 
@@ -371,26 +371,36 @@
     CGPoint anchorPoint = [pan locationInView:self.cardDisplayView];
     
     if (pan.state == UIGestureRecognizerStateBegan) {
-        [self.animator removeAllBehaviors];
-        self.testView = [[UIView alloc] initWithFrame:[self.cardDisplayGrid frameOfCellAtRow:0 inColumn:0]];
-        self.testView.backgroundColor = [UIColor blackColor];
-        [self.cardDisplayView addSubview:self.testView];
         
-        self.attachment = [[UIAttachmentBehavior alloc] initWithItem:self.testView attachedToAnchor:[pan locationInView:self.cardDisplayView]];
-        self.attachment.damping = 0.1;
-        [self.animator addBehavior:self.attachment];
+        [self.animator removeAllBehaviors];
         
         UICollisionBehavior *collision = [[UICollisionBehavior alloc] init];
         collision.translatesReferenceBoundsIntoBoundary = YES;
-        [collision addItem:self.testView];
+        collision.collisionMode = UICollisionBehaviorModeBoundaries;
         [self.animator addBehavior:collision];
+        
+        UIDynamicItemBehavior *itemBehaviour = [[UIDynamicItemBehavior alloc] initWithItems:self.cardButtons];
+        //itemBehaviour.allowsRotation = NO;
+        itemBehaviour.elasticity = 10.0;
+        [self.animator addBehavior:itemBehaviour];
 
+        [self.cardButtons enumerateObjectsUsingBlock:^(UIView *obj, NSUInteger idx, BOOL *stop){
+            UIAttachmentBehavior *attachment = [[UIAttachmentBehavior alloc] initWithItem:obj attachedToAnchor:[pan locationInView:self.cardDisplayView]];
+            //attachment.damping = 2000.0;
+            //attachment.frequency = 2.0;
+            [self.animator addBehavior:attachment];
+            [collision addItem:obj];
+        }];
         
     } else if (pan.state == UIGestureRecognizerStateChanged) {
         
-        self.attachment.anchorPoint = anchorPoint;
-        NSLog(@"panning %f %f", anchorPoint.x, anchorPoint.y);
         
+        for (UIDynamicBehavior *behaviour in self.animator.behaviors) {
+            if ([behaviour isMemberOfClass:[UIAttachmentBehavior class]]) {
+                UIAttachmentBehavior *attachment = (UIAttachmentBehavior *)behaviour;
+                attachment.anchorPoint = anchorPoint;
+            }
+        }
 
     }
 }
