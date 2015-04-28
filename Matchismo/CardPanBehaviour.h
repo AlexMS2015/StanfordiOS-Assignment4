@@ -10,4 +10,6 @@
 
 @interface CardPanBehaviour : UIDynamicBehavior
 
+-(void)addItem:(id<UIDynamicItem>)item;
+
 @end

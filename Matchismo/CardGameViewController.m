@@ -365,9 +365,12 @@
     }
 }
 
+#define RESISTANCE 1.0
+#define DAMPING 0.5
+#define FREQUENCY 0.5
+
 -(void)panCards:(UIPanGestureRecognizer *)pan
 {
-    
     CGPoint anchorPoint = [pan locationInView:self.cardDisplayView];
     
     if (pan.state == UIGestureRecognizerStateBegan) {
@@ -380,14 +383,13 @@
         [self.animator addBehavior:collision];
         
         UIDynamicItemBehavior *itemBehaviour = [[UIDynamicItemBehavior alloc] initWithItems:self.cardButtons];
-        //itemBehaviour.allowsRotation = NO;
-        itemBehaviour.elasticity = 10.0;
+        itemBehaviour.resistance = RESISTANCE;
         [self.animator addBehavior:itemBehaviour];
 
         [self.cardButtons enumerateObjectsUsingBlock:^(UIView *obj, NSUInteger idx, BOOL *stop){
             UIAttachmentBehavior *attachment = [[UIAttachmentBehavior alloc] initWithItem:obj attachedToAnchor:[pan locationInView:self.cardDisplayView]];
-            //attachment.damping = 2000.0;
-            //attachment.frequency = 2.0;
+            attachment.damping = DAMPING;
+            attachment.frequency = FREQUENCY;
             [self.animator addBehavior:attachment];
             [collision addItem:obj];
         }];

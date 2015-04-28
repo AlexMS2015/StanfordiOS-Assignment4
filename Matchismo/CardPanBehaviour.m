@@ -8,6 +8,24 @@
 
 #import "CardPanBehaviour.h"
 
+@interface CardPanBehaviour ()
+
+@property (nonatomic, strong) UIAttachmentBehavior *attachment;
+@property (nonatomic, strong) UICollisionBehavior *collision;
+@property (nonatomic, strong) UIDynamicItemBehavior *animationOptions;
+
+@end
+
 @implementation CardPanBehaviour
+
+-(UIAttachmentBehavior *)attachment
+{
+    if (!_attachment) {
+        _attachment = [[UIAttachmentBehavior alloc] init];
+        
+    }
+    
+    return _attachment;
+}
 
 @end
